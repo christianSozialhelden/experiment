@@ -23,6 +23,7 @@ type Departure = {
   mode: string;
   color: string;
   textColor: string;
+  stopName: string;
   departure: string;
   scheduledDeparture: string;
   cancelled: boolean;
@@ -33,6 +34,49 @@ type Props = {
   lon: number;
   enabled: boolean;
 };
+
+type NearbyStop = { stopId: string; name: string; lat: number; lon: number };
+
+function distanceMeters(
+  aLat: number,
+  aLon: number,
+  bLat: number,
+  bLon: number,
+) {
+  const latMeters = (bLat - aLat) * 111320;
+  const lonMeters = (bLon - aLon) * 111320 * Math.cos((aLat * Math.PI) / 180);
+  return Math.hypot(latMeters, lonMeters);
+}
+
+async function findNearestStop(
+  lat: number,
+  lon: number,
+  signal: AbortSignal,
+): Promise<NearbyStop | null> {
+  for (const radiusKm of [1, 5, 20]) {
+    const dLat = radiusKm / 111.32;
+    const dLon = radiusKm / (111.32 * Math.cos((lat * Math.PI) / 180));
+    const params = new URLSearchParams({
+      min: `${lat - dLat},${lon - dLon}`,
+      max: `${lat + dLat},${lon + dLon}`,
+    });
+    const res = await fetch(
+      `https://api.transitous.org/api/v1/map/stops?${params}`,
+      { signal },
+    );
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const stops: NearbyStop[] = await res.json();
+    if (stops.length > 0) {
+      return stops.reduce((nearest, stop) =>
+        distanceMeters(lat, lon, stop.lat, stop.lon) <
+        distanceMeters(lat, lon, nearest.lat, nearest.lon)
+          ? stop
+          : nearest,
+      );
+    }
+  }
+  return null;
+}
 
 export default function TransitDepartures({ lat, lon, enabled }: Props) {
   const coordKey = `${lat},${lon}`;
@@ -49,19 +93,17 @@ export default function TransitDepartures({ lat, lon, enabled }: Props) {
     const controller = new AbortController();
     const timer = setTimeout(async () => {
       try {
-        const geoRes = await fetch(
-          `https://api.transitous.org/api/v1/reverse-geocode?place=${lat},${lon}`,
-          { signal: controller.signal },
-        );
-        if (!geoRes.ok) throw new Error(`HTTP ${geoRes.status}`);
-        const places = await geoRes.json();
-        const stop = places.find((p: { type: string }) => p.type === "STOP");
+        const stop = await findNearestStop(lat, lon, controller.signal);
         if (!stop) {
           setResult({ key: coordKey, stopName: "", departures: [] });
           return;
         }
 
-        const params = new URLSearchParams({ stopId: stop.id, n: "8" });
+        const params = new URLSearchParams({
+          stopId: stop.stopId,
+          n: "12",
+          radius: "600",
+        });
         const res = await fetch(
           `https://api.transitous.org/api/v1/stoptimes?${params}`,
           { signal: controller.signal },
@@ -93,6 +135,7 @@ export default function TransitDepartures({ lat, lon, enabled }: Props) {
               mode: s.mode,
               color: s.routeColor ? `#${s.routeColor}` : "",
               textColor: s.routeTextColor ? `#${s.routeTextColor}` : "",
+              stopName: s.place.name,
               departure: s.place.departure,
               scheduledDeparture: s.place.scheduledDeparture,
               cancelled: s.cancelled,
@@ -119,7 +162,9 @@ export default function TransitDepartures({ lat, lon, enabled }: Props) {
         Abfahrten (ÖPNV &amp; Bahn)
       </h2>
       {current?.stopName && (
-        <p className="text-zinc-700 dark:text-zinc-300">{current.stopName}</p>
+        <p className="text-zinc-700 dark:text-zinc-300">
+          Haltestellen um {current.stopName}
+        </p>
       )}
       {current === null ? (
         <p className="mt-2 text-zinc-700 dark:text-zinc-300">Lädt …</p>
@@ -153,7 +198,7 @@ export default function TransitDepartures({ lat, lon, enabled }: Props) {
                 <span className="flex-1 text-zinc-800 dark:text-zinc-200">
                   {d.headsign}
                   <span className="block text-base text-zinc-700 dark:text-zinc-300">
-                    {MODE_LABELS[d.mode] ?? d.mode}
+                    {MODE_LABELS[d.mode] ?? d.mode} · {d.stopName}
                   </span>
                 </span>
                 <span className="whitespace-nowrap tabular-nums text-zinc-800 dark:text-zinc-200">

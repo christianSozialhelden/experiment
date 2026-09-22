@@ -40,6 +40,25 @@ type Weather = {
   code: number;
 };
 
+const CAPITALS = [
+  { name: "Berlin", lat: "52.5200", lon: "13.4050" },
+  { name: "Bremen", lat: "53.0793", lon: "8.8017" },
+  { name: "Dresden", lat: "51.0504", lon: "13.7373" },
+  { name: "Düsseldorf", lat: "51.2277", lon: "6.7735" },
+  { name: "Erfurt", lat: "50.9848", lon: "11.0299" },
+  { name: "Hamburg", lat: "53.5511", lon: "9.9937" },
+  { name: "Hannover", lat: "52.3759", lon: "9.7320" },
+  { name: "Kiel", lat: "54.3233", lon: "10.1228" },
+  { name: "Magdeburg", lat: "52.1205", lon: "11.6276" },
+  { name: "Mainz", lat: "50.0000", lon: "8.2711" },
+  { name: "München", lat: "48.1351", lon: "11.5820" },
+  { name: "Potsdam", lat: "52.3906", lon: "13.0645" },
+  { name: "Saarbrücken", lat: "49.2402", lon: "6.9969" },
+  { name: "Schwerin", lat: "53.6355", lon: "11.4012" },
+  { name: "Stuttgart", lat: "48.7758", lon: "9.1829" },
+  { name: "Wiesbaden", lat: "50.0782", lon: "8.2398" },
+];
+
 export default function OsmLinkForm() {
   const [lat, setLat] = useState("52.5200");
   const [lon, setLon] = useState("13.4050");
@@ -105,6 +124,34 @@ export default function OsmLinkForm() {
 
   return (
     <div className="flex w-full flex-col gap-6">
+      <fieldset className="flex flex-col gap-3">
+        <legend className="text-lg font-medium text-black dark:text-zinc-50">
+          Landeshauptstadt wählen
+        </legend>
+        <div className="flex flex-wrap gap-3">
+          {CAPITALS.map((city) => {
+            const active = city.lat === lat && city.lon === lon;
+            return (
+              <button
+                key={city.name}
+                type="button"
+                aria-pressed={active}
+                onClick={() => {
+                  setLat(city.lat);
+                  setLon(city.lon);
+                }}
+                className={`min-h-12 rounded-lg border-2 px-4 py-2 text-lg transition-colors ${
+                  active
+                    ? "border-blue-800 bg-blue-800 font-semibold text-white dark:border-blue-300 dark:bg-blue-300 dark:text-black"
+                    : "border-zinc-500 text-black hover:bg-black/[.06] dark:border-zinc-400 dark:text-zinc-50 dark:hover:bg-[#1a1a1a]"
+                }`}
+              >
+                {city.name}
+              </button>
+            );
+          })}
+        </div>
+      </fieldset>
       <div className="flex flex-col gap-6">
         <label className="flex flex-col gap-2 text-lg font-medium text-black dark:text-zinc-50">
           Breitengrad (lat)
