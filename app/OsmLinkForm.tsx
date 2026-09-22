@@ -104,87 +104,95 @@ export default function OsmLinkForm() {
   }, [isValid, latNum, lonNum, coordKey]);
 
   return (
-    <div className="flex w-full max-w-2xl flex-col gap-6">
-      <label className="flex flex-col gap-2 text-lg font-medium text-black dark:text-zinc-50">
-        Breitengrad (lat)
-        <input
-          type="text"
-          inputMode="decimal"
-          value={lat}
-          onChange={(e) => setLat(e.target.value)}
-          placeholder="z. B. 52.5200"
-          className="rounded-lg border-2 border-zinc-500 px-4 py-3 text-xl dark:border-zinc-400 dark:bg-black dark:text-zinc-50"
-        />
-      </label>
-      <label className="flex flex-col gap-2 text-lg font-medium text-black dark:text-zinc-50">
-        Längengrad (lon)
-        <input
-          type="text"
-          inputMode="decimal"
-          value={lon}
-          onChange={(e) => setLon(e.target.value)}
-          placeholder="z. B. 13.4050"
-          className="rounded-lg border-2 border-zinc-500 px-4 py-3 text-xl dark:border-zinc-400 dark:bg-black dark:text-zinc-50"
-        />
-      </label>
-      {embedUrl && (
-        <iframe
-          key={embedUrl}
-          src={embedUrl}
-          title="Karte von OpenStreetMap"
-          loading="lazy"
-          className="h-96 w-full rounded-lg border-2 border-zinc-500 dark:border-zinc-400"
-        />
-      )}
-      {osmUrl ? (
-        <a
-          href={osmUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex min-h-12 items-center gap-3 text-xl font-medium text-blue-800 underline decoration-2 underline-offset-4 dark:text-blue-300"
-        >
-          <svg
-            aria-hidden="true"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="h-7 w-7 shrink-0"
-          >
-            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z" />
-            <circle cx="12" cy="10" r="3" />
-          </svg>
-          Auf OpenStreetMap öffnen
-        </a>
-      ) : (
-        <p className="text-lg text-zinc-700 dark:text-zinc-300">
-          Bitte gültige Koordinaten eingeben.
-        </p>
-      )}
-      {isValid && (
-        <div className="rounded-lg border-2 border-zinc-400 p-4 text-lg dark:border-zinc-600">
-          <h2 className="text-xl font-semibold text-black dark:text-zinc-50">
-            Aktuelles Wetter
-          </h2>
-          {current?.weather ? (
-            <p className="mt-2 text-zinc-700 dark:text-zinc-300">
-              {WEATHER_CODES[current.weather.code] ??
-                `Wettercode ${current.weather.code}`}
-              , {current.weather.temperature} °C, Wind{" "}
-              {current.weather.windSpeed} km/h
-            </p>
-          ) : current ? (
-            <p className="mt-2 text-zinc-700 dark:text-zinc-300">
-              Wetterdaten konnten nicht geladen werden.
-            </p>
+    <div className="flex w-full flex-col gap-6">
+      <div className="flex flex-col gap-6">
+        <label className="flex flex-col gap-2 text-lg font-medium text-black dark:text-zinc-50">
+          Breitengrad (lat)
+          <input
+            type="text"
+            inputMode="decimal"
+            value={lat}
+            onChange={(e) => setLat(e.target.value)}
+            placeholder="z. B. 52.5200"
+            className="rounded-lg border-2 border-zinc-500 px-4 py-3 text-xl dark:border-zinc-400 dark:bg-black dark:text-zinc-50"
+          />
+        </label>
+        <label className="flex flex-col gap-2 text-lg font-medium text-black dark:text-zinc-50">
+          Längengrad (lon)
+          <input
+            type="text"
+            inputMode="decimal"
+            value={lon}
+            onChange={(e) => setLon(e.target.value)}
+            placeholder="z. B. 13.4050"
+            className="rounded-lg border-2 border-zinc-500 px-4 py-3 text-xl dark:border-zinc-400 dark:bg-black dark:text-zinc-50"
+          />
+        </label>
+      </div>
+      <div className="grid items-start gap-6 lg:grid-cols-2">
+        <div className="flex flex-col gap-6">
+          {embedUrl && (
+            <iframe
+              key={embedUrl}
+              src={embedUrl}
+              title="Karte von OpenStreetMap"
+              loading="lazy"
+              className="h-96 w-full rounded-lg border-2 border-zinc-500 dark:border-zinc-400"
+            />
+          )}
+          {osmUrl ? (
+            <a
+              href={osmUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex min-h-12 items-center gap-3 text-xl font-medium text-blue-800 underline decoration-2 underline-offset-4 dark:text-blue-300"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-7 w-7 shrink-0"
+              >
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              Auf OpenStreetMap öffnen
+            </a>
           ) : (
-            <p className="mt-2 text-zinc-700 dark:text-zinc-300">Lädt …</p>
+            <p className="text-lg text-zinc-700 dark:text-zinc-300">
+              Bitte gültige Koordinaten eingeben.
+            </p>
           )}
         </div>
-      )}
-      <TransitDepartures lat={latNum} lon={lonNum} enabled={isValid} />
+        <div className="flex flex-col gap-6">
+          {isValid && (
+            <div className="rounded-lg border-2 border-zinc-400 p-4 text-lg dark:border-zinc-600">
+              <h2 className="text-xl font-semibold text-black dark:text-zinc-50">
+                Aktuelles Wetter
+              </h2>
+              {current?.weather ? (
+                <p className="mt-2 text-zinc-700 dark:text-zinc-300">
+                  {WEATHER_CODES[current.weather.code] ??
+                    `Wettercode ${current.weather.code}`}
+                  , {current.weather.temperature} °C, Wind{" "}
+                  {current.weather.windSpeed} km/h
+                </p>
+              ) : current ? (
+                <p className="mt-2 text-zinc-700 dark:text-zinc-300">
+                  Wetterdaten konnten nicht geladen werden.
+                </p>
+              ) : (
+                <p className="mt-2 text-zinc-700 dark:text-zinc-300">Lädt …</p>
+              )}
+            </div>
+          )}
+          <TransitDepartures lat={latNum} lon={lonNum} enabled={isValid} />
+        </div>
+      </div>
     </div>
   );
 }
