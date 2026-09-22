@@ -3,9 +3,8 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 ## Verwendete APIs
 
 Alle Dienste sind frei nutzbar und brauchen keinen API-Schlüssel; es gibt keine Secrets.
-Die meisten werden direkt aus dem Browser aufgerufen (CORS erlaubt). Einzige Ausnahme sind die
-amtlichen Warnungen: NINA sendet keine CORS-Header, deshalb läuft dieser Aufruf über die
-Route `app/api/warnings/route.ts`.
+Alle werden direkt aus dem Browser aufgerufen (CORS erlaubt). Die Seite läuft als statischer
+Export auf GitHub Pages und hat deshalb keine serverseitigen Routen.
 
 | Dienst | Zweck | Aufruf |
 | --- | --- | --- |
@@ -14,8 +13,6 @@ Route `app/api/warnings/route.ts`.
 | [Transitous](https://transitous.org) ([MOTIS](https://github.com/motis-project/motis)) | Haltestellen und Abfahrten, deutschlandweit | `GET api.transitous.org/api/v1/map/stops?min=…&max=…` für Haltestellen in einer Bounding-Box, danach `GET …/api/v1/stoptimes?stopId=…&n=…&radius=…` für die Abfahrten |
 | [Wikipedia](https://de.wikipedia.org) (MediaWiki API) | Fotos von Orten in der Umgebung | `GET de.wikipedia.org/w/api.php?action=query&generator=geosearch&ggscoord=…&prop=pageimages` |
 | [Wikimedia Commons](https://commons.wikimedia.org) (MediaWiki API) | Urheber und Lizenz zu diesen Fotos | `GET commons.wikimedia.org/w/api.php?action=query&titles=File:…&prop=imageinfo&iiprop=extmetadata` |
-| [NINA](https://warnung.bund.de) (Bundesamt für Bevölkerungsschutz) | Amtliche Gefahrenwarnungen | `GET warnung.bund.de/api31/dashboard/{AGS}.json`, **nur serverseitig** über `/api/warnings` |
-| [Nominatim](https://nominatim.openstreetmap.org) | Amtlicher Gemeindeschlüssel zu den Koordinaten, nur für NINA | `GET /reverse?lat=…&lon=…&extratags=1`, **nur serverseitig** |
 | [Mangrove](https://open-reviews.net) | Offene Bewertungen im Umkreis | `GET api.mangrove.reviews/reviews?sub={geo-URI}` |
 | [KartaView](https://kartaview.org) | Straßenfotos der Community | `kartaview.org/map/@{lat},{lon},17z` als `<iframe>` |
 | [Mapillary](https://www.mapillary.com) | 360°-Straßenfotos | nur als Weblink `mapillary.com/app/?lat=…&lng=…` |
@@ -38,16 +35,13 @@ Hinweise zur Nutzung:
   werden deshalb aus Commons nachgeladen und unter jedem Foto angezeigt — dieser Schritt darf
   nicht wegoptimiert werden. Die Felder enthalten HTML und werden vor der Ausgabe in reinen
   Text umgewandelt, niemals per `dangerouslySetInnerHTML` eingebunden.
-- **Warnungen** brauchen den amtlichen Gemeindeschlüssel, den NINA nur auf Kreisebene kennt:
-  die ersten fünf Stellen des Regionalschlüssels, auf zwölf Stellen mit Nullen aufgefüllt.
-  Feinere Schlüssel (etwa einer Verbandsgemeinde) liefern 404. Den Schlüssel selbst liefert
-  Nominatim im Feld `de:regionalschluessel`. Angezeigt wird deshalb die Lage im ganzen
-  Landkreis, nicht am exakten Punkt.
-- Nominatim erlaubt höchstens eine Anfrage pro Sekunde und verlangt einen aussagekräftigen
-  `User-Agent`. Beides ist in der Route umgesetzt, die Antworten werden einen Tag lang
-  zwischengespeichert (Warnungen fünf Minuten).
-- Die Route nimmt ausschließlich geprüfte Zahlen als Koordinaten entgegen und gibt sonst 400
-  zurück — sie darf nie zu einem offenen Proxy für beliebige Ziele werden.
+- **Amtliche Warnungen (NINA)** waren einmal eingebaut und sind seit der Umstellung auf GitHub
+  Pages deaktiviert: NINA sendet keine CORS-Header, der Aufruf braucht also einen Server. Der
+  Code dafür steht in der Git-Historie (`app/api/warnings/route.ts`, Commit `8ec9106a`) und
+  lässt sich bei einem Deployment mit Server-Laufzeit zurückholen. Merkposten für dann: NINA
+  kennt den Gemeindeschlüssel nur auf Kreisebene — die ersten fünf Stellen des
+  Regionalschlüssels, auf zwölf Stellen mit Nullen aufgefüllt; feinere Schlüssel liefern 404.
+  Den Schlüssel selbst liefert Nominatim im Feld `de:regionalschluessel`.
 - **Mangrove** hat keinen Radius-Parameter. Der Umkreis steckt im Subject selbst, einem
   `geo:`-URI nach RFC 5870: `geo:{lat},{lon}?u={Meter}`. Das `?u=` muss mit URL-kodiert werden
   (`%3Fu%3D`), sonst liest die API es als eigenen Query-Parameter. Achtung: Unbekannte Parameter
@@ -91,6 +85,19 @@ Wikipedia-Artikelbilder einmal nicht ausreichen:
 
 Nicht geeignet: Unsplash und Pexels haben keine echte Geosuche, Panoramio ist eingestellt,
 [Geograph](https://www.geograph.org.uk) deckt nur Großbritannien und Irland ab.
+
+## Deployment
+
+Die Seite liegt als statischer Export auf GitHub Pages:
+<https://christiansozialhelden.github.io/experiment/>
+
+Jeder Push auf `main` löst `.github/workflows/deploy.yml` aus. Der Workflow baut mit
+`GITHUB_PAGES=true`; nur dann setzt `next.config.ts` `output: "export"` und den `basePath`
+`/experiment`. Lokal bleibt alles beim normalen `next dev` ohne basePath.
+
+Wichtig: GitHub Pages führt keinen Server aus. Route Handler unter `app/api/` brechen den
+Build mit `output: "export"` ab — deshalb gibt es hier keine. Wer serverseitige Aufrufe
+braucht (etwa für APIs ohne CORS-Header), muss auf eine Plattform mit Laufzeit wechseln.
 
 ## Getting Started
 
