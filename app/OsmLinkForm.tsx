@@ -59,6 +59,10 @@ export default function OsmLinkForm() {
     ? `https://www.openstreetmap.org/?mlat=${latNum}&mlon=${lonNum}#map=18/${latNum}/${lonNum}`
     : null;
 
+  const embedUrl = isValid
+    ? `https://www.openstreetmap.org/export/embed.html?bbox=${(lonNum - 0.005).toFixed(6)},${(latNum - 0.0025).toFixed(6)},${(lonNum + 0.005).toFixed(6)},${(latNum + 0.0025).toFixed(6)}&layer=mapnik&marker=${latNum},${lonNum}`
+    : null;
+
   const [weather, setWeather] = useState<Weather | null>(null);
   const [weatherError, setWeatherError] = useState(false);
 
@@ -98,7 +102,7 @@ export default function OsmLinkForm() {
   }, [isValid, latNum, lonNum]);
 
   return (
-    <div className="flex flex-col gap-4 w-full max-w-xs">
+    <div className="flex flex-col gap-4 w-full max-w-md">
       <label className="flex flex-col gap-1 text-sm font-medium text-black dark:text-zinc-50">
         Breitengrad (lat)
         <input
@@ -121,14 +125,36 @@ export default function OsmLinkForm() {
           className="rounded border border-black/[.15] px-3 py-2 text-base dark:border-white/[.2] dark:bg-black dark:text-zinc-50"
         />
       </label>
+      {embedUrl && (
+        <iframe
+          key={embedUrl}
+          src={embedUrl}
+          title="Karte von OpenStreetMap"
+          loading="lazy"
+          className="h-64 w-full rounded border border-black/[.15] dark:border-white/[.2]"
+        />
+      )}
       {osmUrl ? (
         <a
           href={osmUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="font-medium text-zinc-950 underline dark:text-zinc-50"
+          className="flex items-center gap-2 font-medium text-zinc-950 underline dark:text-zinc-50"
         >
-          {osmUrl}
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-4 w-4 shrink-0"
+          >
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+          Auf OpenStreetMap öffnen
         </a>
       ) : (
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
