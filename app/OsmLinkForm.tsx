@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Panoramas from "./Panoramas";
 import PlacePhotos from "./PlacePhotos";
 import SafetyWarnings from "./SafetyWarnings";
 import TransitDepartures from "./TransitDepartures";
@@ -273,6 +274,7 @@ export default function OsmLinkForm() {
         <div className="flex flex-col gap-6">
           <TransitDepartures lat={latNum} lon={lonNum} enabled={isValid} />
         </div>
+        <Panoramas lat={latNum} lon={lonNum} enabled={isValid} />
       </div>
     </div>
   );

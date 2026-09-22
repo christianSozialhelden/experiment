@@ -16,6 +16,9 @@ Route `app/api/warnings/route.ts`.
 | [Wikimedia Commons](https://commons.wikimedia.org) (MediaWiki API) | Urheber und Lizenz zu diesen Fotos | `GET commons.wikimedia.org/w/api.php?action=query&titles=File:…&prop=imageinfo&iiprop=extmetadata` |
 | [NINA](https://warnung.bund.de) (Bundesamt für Bevölkerungsschutz) | Amtliche Gefahrenwarnungen | `GET warnung.bund.de/api31/dashboard/{AGS}.json`, **nur serverseitig** über `/api/warnings` |
 | [Nominatim](https://nominatim.openstreetmap.org) | Amtlicher Gemeindeschlüssel zu den Koordinaten, nur für NINA | `GET /reverse?lat=…&lon=…&extratags=1`, **nur serverseitig** |
+| [KartaView](https://kartaview.org) | Straßenfotos der Community | `kartaview.org/map/@{lat},{lon},17z` als `<iframe>` |
+| [Mapillary](https://www.mapillary.com) | 360°-Straßenfotos | nur als Weblink `mapillary.com/app/?lat=…&lng=…` |
+| [Panomax](https://www.panomax.com) | Feste 360°-Panoramakameras | nur als Weblink auf die Übersichtskarte |
 
 Hinweise zur Nutzung:
 
@@ -44,6 +47,16 @@ Hinweise zur Nutzung:
   zwischengespeichert (Warnungen fünf Minuten).
 - Die Route nimmt ausschließlich geprüfte Zahlen als Koordinaten entgegen und gibt sonst 400
   zurück — sie darf nie zu einem offenen Proxy für beliebige Ziele werden.
+- **360°-Fotos** sind aus drei Diensten eingebunden, mit sehr unterschiedlichem Ergebnis:
+  - *KartaView* lässt sich als `<iframe>` mit Koordinaten einbetten und zeigt die Fotopunkte
+    direkt. Die JSON-API (`api.kartaview.org`) war bei allen Tests nicht erreichbar —
+    Verbindungsaufbau gelingt, die Antwort bleibt aus. Deshalb nur die Karteneinbettung.
+  - *Mapillary* erlaubt Einbetten nur über `/embed` und nur mit einer konkreten Bild-ID; die
+    bekommt man ausschließlich über die Graph API mit Token. Die Kartenansicht `/app` schickt
+    `X-Frame-Options: DENY`. Ohne Token bleibt daher nur der Weblink. Mit einem kostenlosen
+    Token ließe sich das nächstgelegene Bild ermitteln und einbetten.
+  - *Panomax* hat keine öffentliche API und keine URL, die Koordinaten entgegennimmt. Der Link
+    führt auf die Übersichtskarte, die Kameras stehen überwiegend im Alpenraum.
 - Alle Datenquellen sind Gemeinschaftsprojekte ohne Verfügbarkeitsgarantie. Fehler werden
   im UI abgefangen, nicht per Retry.
 
@@ -56,11 +69,11 @@ Wikipedia-Artikelbilder einmal nicht ausreichen:
 
 | Quelle | Schlüssel | Eignung |
 | --- | --- | --- |
-| [Mapillary](https://www.mapillary.com) | kostenloser Token nötig | Straßenfotos exakt am Punkt, CC-BY-SA. Inhaltlich die stärkste Ergänzung zur Karte. Der Token läge im Browser-Code offen — bei Mapillary vorgesehen, bindet das Projekt aber an ein Meta-Konto. |
+| [Mapillary](https://www.mapillary.com) | kostenloser Token nötig | Inzwischen als Weblink eingebunden. Mit Token ließe sich das nächstgelegene Bild einbetten statt nur zu verlinken; der Token läge im Browser-Code offen und bindet das Projekt an ein Meta-Konto. |
 | [Flickr](https://www.flickr.com/services/api/) | API-Key nötig | Sehr großer Bestand, Geosuche mit Lizenzfilter (`flickr.photos.search` mit `lat`/`lon`/`radius`). Bildqualität und Ortsbezug schwanken stark. |
 | [Wikidata](https://query.wikidata.org) (SPARQL) | keiner, CORS offen | Läuft sofort. `SERVICE wikibase:around` plus `wdt:P18` liefert Objektfotos im Umkreis, teils andere Objekte als die Artikelsuche (U-Bahnhöfe, Institutionen). Naheliegendste Ergänzung ohne Registrierung. |
 | [iNaturalist](https://api.inaturalist.org/v1/docs/) | keiner, CORS offen | Tier- und Pflanzenfotos mit Koordinaten, sehr dichte Abdeckung. Zeigt Arten, keine Ortsansichten — nur für einen Naturschwerpunkt sinnvoll. |
-| [KartaView](https://kartaview.org) | — | War beim Test nicht erreichbar (weder `api.kartaview.org` noch `api.openstreetcam.org`). Vor einem Einbau erneut prüfen. |
+| [KartaView](https://kartaview.org) | keiner | Karte ist als `<iframe>` eingebunden. Die JSON-API bleibt unerreichbar — für eigene Fotolisten statt Karteneinbettung erneut prüfen. |
 
 Nicht geeignet: Unsplash und Pexels haben keine echte Geosuche, Panoramio ist eingestellt,
 [Geograph](https://www.geograph.org.uk) deckt nur Großbritannien und Irland ab.
