@@ -12,3 +12,15 @@
 {"timestamp":"00:17:31.401","source":"Server","level":"LOG","message":"✓ Compiled in 21ms"}
 {"timestamp":"00:17:35.939","source":"Server","level":"LOG","message":"✓ Compiled in 19ms"}
 {"timestamp":"00:17:47.843","source":"Server","level":"LOG","message":"✓ Compiled in 15ms"}
+{"timestamp":"00:18:43.926","source":"Server","level":"LOG","message":"✓ Compiled in 35ms"}
+{"timestamp":"00:18:47.453","source":"Server","level":"LOG","message":"✓ Compiled in 35ms"}
+{"timestamp":"00:18:56.710","source":"Server","level":"LOG","message":"✓ Compiled in 17ms"}
+{"timestamp":"00:19:02.793","source":"Browser","level":"ERROR","message":"Encountered a script tag while rendering React component. Scripts inside React components are never executed when rendering on the client. Consider using template tag instead (https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template). "}
+{"timestamp":"00:19:02.802","source":"Server","level":"ERROR","message":"[browser] \"Encountered a script tag while rendering React component. Scripts inside React components are never executed when rendering on the client. Consider using template tag instead (https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template).\" \"\""}
+{"timestamp":"00:19:31.155","source":"Server","level":"ERROR","message":"⨯ ReferenceError: Script is not defined"}
+{"timestamp":"00:19:31.201","source":"Browser","level":"ERROR","message":"Uncaught ReferenceError: Script is not defined"}
+{"timestamp":"00:19:31.201","source":"Server","level":"ERROR","message":"[browser] \"\\u001b[31mUncaught ReferenceError: Script is not defined\\u001b[39m\""}
+{"timestamp":"00:19:34.179","source":"Server","level":"WARN","message":"⚠ Fast Refresh had to perform a full reload due to a runtime error."}
+{"timestamp":"00:20:22.432","source":"Server","level":"LOG","message":"✓ Compiled in 52ms"}
+{"timestamp":"00:20:26.246","source":"Server","level":"LOG","message":"✓ Compiled in 36ms"}
+{"timestamp":"00:20:39.643","source":"Server","level":"LOG","message":"✓ Compiled in 15ms"}
