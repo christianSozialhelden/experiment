@@ -22,6 +22,7 @@ type Departure = {
   headsign: string;
   mode: string;
   color: string;
+  textColor: string;
   departure: string;
   scheduledDeparture: string;
   cancelled: boolean;
@@ -78,6 +79,7 @@ export default function TransitDepartures({ lat, lon, enabled }: Props) {
               headsign: string;
               mode: string;
               routeColor?: string;
+              routeTextColor?: string;
               cancelled: boolean;
               place: {
                 name: string;
@@ -90,6 +92,7 @@ export default function TransitDepartures({ lat, lon, enabled }: Props) {
               headsign: s.headsign,
               mode: s.mode,
               color: s.routeColor ? `#${s.routeColor}` : "",
+              textColor: s.routeTextColor ? `#${s.routeTextColor}` : "",
               departure: s.place.departure,
               scheduledDeparture: s.place.scheduledDeparture,
               cancelled: s.cancelled,
@@ -111,27 +114,25 @@ export default function TransitDepartures({ lat, lon, enabled }: Props) {
   if (!enabled) return null;
 
   return (
-    <div className="rounded border border-black/[.08] p-3 text-sm dark:border-white/[.145]">
-      <h2 className="font-medium text-black dark:text-zinc-50">
+    <div className="rounded-lg border-2 border-zinc-400 p-4 text-lg dark:border-zinc-600">
+      <h2 className="text-xl font-semibold text-black dark:text-zinc-50">
         Abfahrten (ÖPNV &amp; Bahn)
       </h2>
       {current?.stopName && (
-        <p className="text-xs text-zinc-500 dark:text-zinc-400">
-          {current.stopName}
-        </p>
+        <p className="text-zinc-700 dark:text-zinc-300">{current.stopName}</p>
       )}
       {current === null ? (
-        <p className="mt-1 text-zinc-500 dark:text-zinc-400">Lädt …</p>
+        <p className="mt-2 text-zinc-700 dark:text-zinc-300">Lädt …</p>
       ) : current.departures === null ? (
-        <p className="mt-1 text-zinc-600 dark:text-zinc-400">
+        <p className="mt-2 text-zinc-700 dark:text-zinc-300">
           Verkehrsdaten konnten nicht geladen werden.
         </p>
       ) : current.departures.length === 0 ? (
-        <p className="mt-1 text-zinc-600 dark:text-zinc-400">
+        <p className="mt-2 text-zinc-700 dark:text-zinc-300">
           Keine Haltestelle in der Nähe gefunden.
         </p>
       ) : (
-        <ul className="mt-2 flex flex-col gap-2">
+        <ul className="mt-3 flex flex-col gap-3">
           {current.departures.map((d) => {
             const delayMinutes = Math.round(
               (new Date(d.departure).getTime() -
@@ -139,22 +140,25 @@ export default function TransitDepartures({ lat, lon, enabled }: Props) {
                 60000,
             );
             return (
-              <li key={d.tripId} className="flex items-baseline gap-2">
+              <li key={d.tripId} className="flex items-baseline gap-3">
                 <span
-                  className="rounded px-1.5 py-0.5 text-xs font-medium text-white"
-                  style={{ backgroundColor: d.color || "#3f3f46" }}
+                  className="rounded px-2 py-1 font-semibold"
+                  style={{
+                    backgroundColor: d.color || "#27272a",
+                    color: d.textColor || "#ffffff",
+                  }}
                 >
                   {d.line || MODE_LABELS[d.mode] || d.mode}
                 </span>
-                <span className="flex-1 text-zinc-700 dark:text-zinc-300">
+                <span className="flex-1 text-zinc-800 dark:text-zinc-200">
                   {d.headsign}
-                  <span className="block text-xs text-zinc-500 dark:text-zinc-400">
+                  <span className="block text-base text-zinc-700 dark:text-zinc-300">
                     {MODE_LABELS[d.mode] ?? d.mode}
                   </span>
                 </span>
-                <span className="whitespace-nowrap tabular-nums text-zinc-700 dark:text-zinc-300">
+                <span className="whitespace-nowrap tabular-nums text-zinc-800 dark:text-zinc-200">
                   {d.cancelled ? (
-                    <span className="text-red-600 dark:text-red-400">
+                    <span className="font-semibold text-red-700 dark:text-red-300">
                       fällt aus
                     </span>
                   ) : (
@@ -164,9 +168,9 @@ export default function TransitDepartures({ lat, lon, enabled }: Props) {
                         minute: "2-digit",
                       })}
                       {delayMinutes > 0 && (
-                        <span className="text-red-600 dark:text-red-400">
+                        <span className="font-semibold text-red-700 dark:text-red-300">
                           {" "}
-                          +{delayMinutes}
+                          +{delayMinutes} Min
                         </span>
                       )}
                     </>

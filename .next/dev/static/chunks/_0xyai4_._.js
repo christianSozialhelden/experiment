@@ -99,10 +99,10 @@ function OsmLinkForm() {
         coordKey
     ]);
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "flex flex-col gap-4 w-full max-w-md",
+        className: "flex w-full max-w-2xl flex-col gap-6",
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                className: "flex flex-col gap-1 text-sm font-medium text-black dark:text-zinc-50",
+                className: "flex flex-col gap-2 text-lg font-medium text-black dark:text-zinc-50",
                 children: [
                     "Breitengrad (lat)",
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -111,7 +111,7 @@ function OsmLinkForm() {
                         value: lat,
                         onChange: (e)=>setLat(e.target.value),
                         placeholder: "z. B. 52.5200",
-                        className: "rounded border border-black/[.15] px-3 py-2 text-base dark:border-white/[.2] dark:bg-black dark:text-zinc-50"
+                        className: "rounded-lg border-2 border-zinc-500 px-4 py-3 text-xl dark:border-zinc-400 dark:bg-black dark:text-zinc-50"
                     }, void 0, false, {
                         fileName: "[project]/app/OsmLinkForm.tsx",
                         lineNumber: 110,
@@ -124,7 +124,7 @@ function OsmLinkForm() {
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                className: "flex flex-col gap-1 text-sm font-medium text-black dark:text-zinc-50",
+                className: "flex flex-col gap-2 text-lg font-medium text-black dark:text-zinc-50",
                 children: [
                     "Längengrad (lon)",
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -133,7 +133,7 @@ function OsmLinkForm() {
                         value: lon,
                         onChange: (e)=>setLon(e.target.value),
                         placeholder: "z. B. 13.4050",
-                        className: "rounded border border-black/[.15] px-3 py-2 text-base dark:border-white/[.2] dark:bg-black dark:text-zinc-50"
+                        className: "rounded-lg border-2 border-zinc-500 px-4 py-3 text-xl dark:border-zinc-400 dark:bg-black dark:text-zinc-50"
                     }, void 0, false, {
                         fileName: "[project]/app/OsmLinkForm.tsx",
                         lineNumber: 121,
@@ -149,7 +149,7 @@ function OsmLinkForm() {
                 src: embedUrl,
                 title: "Karte von OpenStreetMap",
                 loading: "lazy",
-                className: "h-64 w-full rounded border border-black/[.15] dark:border-white/[.2]"
+                className: "h-96 w-full rounded-lg border-2 border-zinc-500 dark:border-zinc-400"
             }, embedUrl, false, {
                 fileName: "[project]/app/OsmLinkForm.tsx",
                 lineNumber: 131,
@@ -159,7 +159,7 @@ function OsmLinkForm() {
                 href: osmUrl,
                 target: "_blank",
                 rel: "noopener noreferrer",
-                className: "flex items-center gap-2 font-medium text-zinc-950 underline dark:text-zinc-50",
+                className: "flex min-h-12 items-center gap-3 text-xl font-medium text-blue-800 underline decoration-2 underline-offset-4 dark:text-blue-300",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
                         "aria-hidden": "true",
@@ -169,7 +169,7 @@ function OsmLinkForm() {
                         strokeWidth: 2,
                         strokeLinecap: "round",
                         strokeLinejoin: "round",
-                        className: "h-4 w-4 shrink-0",
+                        className: "h-7 w-7 shrink-0",
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
                                 d: "M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z"
@@ -200,7 +200,7 @@ function OsmLinkForm() {
                 lineNumber: 140,
                 columnNumber: 9
             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                className: "text-sm text-zinc-500 dark:text-zinc-400",
+                className: "text-lg text-zinc-700 dark:text-zinc-300",
                 children: "Bitte gültige Koordinaten eingeben."
             }, void 0, false, {
                 fileName: "[project]/app/OsmLinkForm.tsx",
@@ -208,10 +208,10 @@ function OsmLinkForm() {
                 columnNumber: 9
             }, this),
             isValid && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "rounded border border-black/[.08] p-3 text-sm dark:border-white/[.145]",
+                className: "rounded-lg border-2 border-zinc-400 p-4 text-lg dark:border-zinc-600",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
-                        className: "font-medium text-black dark:text-zinc-50",
+                        className: "text-xl font-semibold text-black dark:text-zinc-50",
                         children: "Aktuelles Wetter"
                     }, void 0, false, {
                         fileName: "[project]/app/OsmLinkForm.tsx",
@@ -219,7 +219,7 @@ function OsmLinkForm() {
                         columnNumber: 11
                     }, this),
                     current?.weather ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                        className: "mt-1 text-zinc-600 dark:text-zinc-400",
+                        className: "mt-2 text-zinc-700 dark:text-zinc-300",
                         children: [
                             WEATHER_CODES[current.weather.code] ?? `Wettercode ${current.weather.code}`,
                             ", ",
@@ -234,14 +234,14 @@ function OsmLinkForm() {
                         lineNumber: 172,
                         columnNumber: 13
                     }, this) : current ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                        className: "mt-1 text-zinc-600 dark:text-zinc-400",
+                        className: "mt-2 text-zinc-700 dark:text-zinc-300",
                         children: "Wetterdaten konnten nicht geladen werden."
                     }, void 0, false, {
                         fileName: "[project]/app/OsmLinkForm.tsx",
                         lineNumber: 179,
                         columnNumber: 13
                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                        className: "mt-1 text-zinc-500 dark:text-zinc-400",
+                        className: "mt-2 text-zinc-700 dark:text-zinc-300",
                         children: "Lädt …"
                     }, void 0, false, {
                         fileName: "[project]/app/OsmLinkForm.tsx",
@@ -312,7 +312,7 @@ function ThemeToggle() {
         type: "button",
         onClick: toggle,
         "aria-label": "Farbschema wechseln",
-        className: "flex h-10 w-10 items-center justify-center rounded-full border border-black/[.08] text-black transition-colors hover:bg-black/[.04] dark:border-white/[.145] dark:text-zinc-50 dark:hover:bg-[#1a1a1a]",
+        className: "flex h-14 w-14 items-center justify-center rounded-full border-2 border-zinc-500 text-black transition-colors hover:bg-black/[.06] dark:border-zinc-400 dark:text-zinc-50 dark:hover:bg-[#1a1a1a]",
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
                 "aria-hidden": "true",
@@ -322,7 +322,7 @@ function ThemeToggle() {
                 strokeWidth: 2,
                 strokeLinecap: "round",
                 strokeLinejoin: "round",
-                className: "hidden h-5 w-5 dark:block",
+                className: "hidden h-7 w-7 dark:block",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("circle", {
                         cx: "12",
@@ -354,7 +354,7 @@ function ThemeToggle() {
                 strokeWidth: 2,
                 strokeLinecap: "round",
                 strokeLinejoin: "round",
-                className: "h-5 w-5 dark:hidden",
+                className: "h-7 w-7 dark:hidden",
                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
                     d: "M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"
                 }, void 0, false, {
@@ -455,6 +455,7 @@ function TransitDepartures({ lat, lon, enabled }) {
                                         headsign: s.headsign,
                                         mode: s.mode,
                                         color: s.routeColor ? `#${s.routeColor}` : "",
+                                        textColor: s.routeTextColor ? `#${s.routeTextColor}` : "",
                                         departure: s.place.departure,
                                         scheduledDeparture: s.place.scheduledDeparture,
                                         cancelled: s.cancelled
@@ -486,89 +487,90 @@ function TransitDepartures({ lat, lon, enabled }) {
     ]);
     if (!enabled) return null;
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "rounded border border-black/[.08] p-3 text-sm dark:border-white/[.145]",
+        className: "rounded-lg border-2 border-zinc-400 p-4 text-lg dark:border-zinc-600",
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
-                className: "font-medium text-black dark:text-zinc-50",
+                className: "text-xl font-semibold text-black dark:text-zinc-50",
                 children: "Abfahrten (ÖPNV & Bahn)"
             }, void 0, false, {
                 fileName: "[project]/app/TransitDepartures.tsx",
-                lineNumber: 115,
+                lineNumber: 118,
                 columnNumber: 7
             }, this),
             current?.stopName && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                className: "text-xs text-zinc-500 dark:text-zinc-400",
+                className: "text-zinc-700 dark:text-zinc-300",
                 children: current.stopName
             }, void 0, false, {
                 fileName: "[project]/app/TransitDepartures.tsx",
-                lineNumber: 119,
+                lineNumber: 122,
                 columnNumber: 9
             }, this),
             current === null ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                className: "mt-1 text-zinc-500 dark:text-zinc-400",
+                className: "mt-2 text-zinc-700 dark:text-zinc-300",
                 children: "Lädt …"
             }, void 0, false, {
                 fileName: "[project]/app/TransitDepartures.tsx",
-                lineNumber: 124,
+                lineNumber: 125,
                 columnNumber: 9
             }, this) : current.departures === null ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                className: "mt-1 text-zinc-600 dark:text-zinc-400",
+                className: "mt-2 text-zinc-700 dark:text-zinc-300",
                 children: "Verkehrsdaten konnten nicht geladen werden."
             }, void 0, false, {
                 fileName: "[project]/app/TransitDepartures.tsx",
-                lineNumber: 126,
+                lineNumber: 127,
                 columnNumber: 9
             }, this) : current.departures.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                className: "mt-1 text-zinc-600 dark:text-zinc-400",
+                className: "mt-2 text-zinc-700 dark:text-zinc-300",
                 children: "Keine Haltestelle in der Nähe gefunden."
             }, void 0, false, {
                 fileName: "[project]/app/TransitDepartures.tsx",
-                lineNumber: 130,
+                lineNumber: 131,
                 columnNumber: 9
             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("ul", {
-                className: "mt-2 flex flex-col gap-2",
+                className: "mt-3 flex flex-col gap-3",
                 children: current.departures.map((d)=>{
                     const delayMinutes = Math.round((new Date(d.departure).getTime() - new Date(d.scheduledDeparture).getTime()) / 60000);
                     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
-                        className: "flex items-baseline gap-2",
+                        className: "flex items-baseline gap-3",
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                className: "rounded px-1.5 py-0.5 text-xs font-medium text-white",
+                                className: "rounded px-2 py-1 font-semibold",
                                 style: {
-                                    backgroundColor: d.color || "#3f3f46"
+                                    backgroundColor: d.color || "#27272a",
+                                    color: d.textColor || "#ffffff"
                                 },
                                 children: d.line || MODE_LABELS[d.mode] || d.mode
                             }, void 0, false, {
                                 fileName: "[project]/app/TransitDepartures.tsx",
-                                lineNumber: 143,
+                                lineNumber: 144,
                                 columnNumber: 17
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                className: "flex-1 text-zinc-700 dark:text-zinc-300",
+                                className: "flex-1 text-zinc-800 dark:text-zinc-200",
                                 children: [
                                     d.headsign,
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                        className: "block text-xs text-zinc-500 dark:text-zinc-400",
+                                        className: "block text-base text-zinc-700 dark:text-zinc-300",
                                         children: MODE_LABELS[d.mode] ?? d.mode
                                     }, void 0, false, {
                                         fileName: "[project]/app/TransitDepartures.tsx",
-                                        lineNumber: 151,
+                                        lineNumber: 155,
                                         columnNumber: 19
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/TransitDepartures.tsx",
-                                lineNumber: 149,
+                                lineNumber: 153,
                                 columnNumber: 17
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                className: "whitespace-nowrap tabular-nums text-zinc-700 dark:text-zinc-300",
+                                className: "whitespace-nowrap tabular-nums text-zinc-800 dark:text-zinc-200",
                                 children: d.cancelled ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                    className: "text-red-600 dark:text-red-400",
+                                    className: "font-semibold text-red-700 dark:text-red-300",
                                     children: "fällt aus"
                                 }, void 0, false, {
                                     fileName: "[project]/app/TransitDepartures.tsx",
-                                    lineNumber: 157,
+                                    lineNumber: 161,
                                     columnNumber: 21
                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
                                     children: [
@@ -577,44 +579,45 @@ function TransitDepartures({ lat, lon, enabled }) {
                                             minute: "2-digit"
                                         }),
                                         delayMinutes > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                            className: "text-red-600 dark:text-red-400",
+                                            className: "font-semibold text-red-700 dark:text-red-300",
                                             children: [
                                                 " ",
                                                 "+",
-                                                delayMinutes
+                                                delayMinutes,
+                                                " Min"
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/TransitDepartures.tsx",
-                                            lineNumber: 167,
+                                            lineNumber: 171,
                                             columnNumber: 25
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/TransitDepartures.tsx",
-                                    lineNumber: 161,
+                                    lineNumber: 165,
                                     columnNumber: 21
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/TransitDepartures.tsx",
-                                lineNumber: 155,
+                                lineNumber: 159,
                                 columnNumber: 17
                             }, this)
                         ]
                     }, d.tripId, true, {
                         fileName: "[project]/app/TransitDepartures.tsx",
-                        lineNumber: 142,
+                        lineNumber: 143,
                         columnNumber: 15
                     }, this);
                 })
             }, void 0, false, {
                 fileName: "[project]/app/TransitDepartures.tsx",
-                lineNumber: 134,
+                lineNumber: 135,
                 columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/TransitDepartures.tsx",
-        lineNumber: 114,
+        lineNumber: 117,
         columnNumber: 5
     }, this);
 }
