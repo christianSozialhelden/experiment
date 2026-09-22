@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import TransitDepartures from "./TransitDepartures";
 
 const WEATHER_CODES: Record<number, string> = {
   0: "Klar",
@@ -63,15 +64,15 @@ export default function OsmLinkForm() {
     ? `https://www.openstreetmap.org/export/embed.html?bbox=${(lonNum - 0.005).toFixed(6)},${(latNum - 0.0025).toFixed(6)},${(lonNum + 0.005).toFixed(6)},${(latNum + 0.0025).toFixed(6)}&layer=mapnik&marker=${latNum},${lonNum}`
     : null;
 
-  const [weather, setWeather] = useState<Weather | null>(null);
-  const [weatherError, setWeatherError] = useState(false);
+  const coordKey = `${latNum},${lonNum}`;
+  const [result, setResult] = useState<{
+    key: string;
+    weather: Weather | null;
+  } | null>(null);
+  const current = result?.key === coordKey ? result : null;
 
   useEffect(() => {
-    if (!isValid) {
-      setWeather(null);
-      setWeatherError(false);
-      return;
-    }
+    if (!isValid) return;
 
     const controller = new AbortController();
     const timer = setTimeout(async () => {
@@ -82,16 +83,17 @@ export default function OsmLinkForm() {
         );
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        setWeather({
-          temperature: data.current_weather.temperature,
-          windSpeed: data.current_weather.windspeed,
-          code: data.current_weather.weathercode,
+        setResult({
+          key: coordKey,
+          weather: {
+            temperature: data.current_weather.temperature,
+            windSpeed: data.current_weather.windspeed,
+            code: data.current_weather.weathercode,
+          },
         });
-        setWeatherError(false);
       } catch {
         if (controller.signal.aborted) return;
-        setWeather(null);
-        setWeatherError(true);
+        setResult({ key: coordKey, weather: null });
       }
     }, 400);
 
@@ -99,7 +101,7 @@ export default function OsmLinkForm() {
       controller.abort();
       clearTimeout(timer);
     };
-  }, [isValid, latNum, lonNum]);
+  }, [isValid, latNum, lonNum, coordKey]);
 
   return (
     <div className="flex flex-col gap-4 w-full max-w-md">
@@ -166,12 +168,14 @@ export default function OsmLinkForm() {
           <h2 className="font-medium text-black dark:text-zinc-50">
             Aktuelles Wetter
           </h2>
-          {weather ? (
+          {current?.weather ? (
             <p className="mt-1 text-zinc-600 dark:text-zinc-400">
-              {WEATHER_CODES[weather.code] ?? `Wettercode ${weather.code}`},{" "}
-              {weather.temperature} °C, Wind {weather.windSpeed} km/h
+              {WEATHER_CODES[current.weather.code] ??
+                `Wettercode ${current.weather.code}`}
+              , {current.weather.temperature} °C, Wind{" "}
+              {current.weather.windSpeed} km/h
             </p>
-          ) : weatherError ? (
+          ) : current ? (
             <p className="mt-1 text-zinc-600 dark:text-zinc-400">
               Wetterdaten konnten nicht geladen werden.
             </p>
@@ -180,6 +184,7 @@ export default function OsmLinkForm() {
           )}
         </div>
       )}
+      <TransitDepartures lat={latNum} lon={lonNum} enabled={isValid} />
     </div>
   );
 }

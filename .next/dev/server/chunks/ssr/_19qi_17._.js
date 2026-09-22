@@ -102,13 +102,13 @@ function OsmLinkForm() {
                         className: "rounded border border-black/[.15] px-3 py-2 text-base dark:border-white/[.2] dark:bg-black dark:text-zinc-50"
                     }, void 0, false, {
                         fileName: "[project]/app/OsmLinkForm.tsx",
-                        lineNumber: 108,
+                        lineNumber: 109,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/OsmLinkForm.tsx",
-                lineNumber: 106,
+                lineNumber: 107,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -124,13 +124,13 @@ function OsmLinkForm() {
                         className: "rounded border border-black/[.15] px-3 py-2 text-base dark:border-white/[.2] dark:bg-black dark:text-zinc-50"
                     }, void 0, false, {
                         fileName: "[project]/app/OsmLinkForm.tsx",
-                        lineNumber: 119,
+                        lineNumber: 120,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/OsmLinkForm.tsx",
-                lineNumber: 117,
+                lineNumber: 118,
                 columnNumber: 7
             }, this),
             embedUrl && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("iframe", {
@@ -140,7 +140,7 @@ function OsmLinkForm() {
                 className: "h-64 w-full rounded border border-black/[.15] dark:border-white/[.2]"
             }, embedUrl, false, {
                 fileName: "[project]/app/OsmLinkForm.tsx",
-                lineNumber: 129,
+                lineNumber: 130,
                 columnNumber: 9
             }, this),
             osmUrl ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
@@ -163,7 +163,7 @@ function OsmLinkForm() {
                                 d: "M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z"
                             }, void 0, false, {
                                 fileName: "[project]/app/OsmLinkForm.tsx",
-                                lineNumber: 154,
+                                lineNumber: 155,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("circle", {
@@ -172,27 +172,27 @@ function OsmLinkForm() {
                                 r: "3"
                             }, void 0, false, {
                                 fileName: "[project]/app/OsmLinkForm.tsx",
-                                lineNumber: 155,
+                                lineNumber: 156,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/OsmLinkForm.tsx",
-                        lineNumber: 144,
+                        lineNumber: 145,
                         columnNumber: 11
                     }, this),
                     "Auf OpenStreetMap öffnen"
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/OsmLinkForm.tsx",
-                lineNumber: 138,
+                lineNumber: 139,
                 columnNumber: 9
             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                 className: "text-sm text-zinc-500 dark:text-zinc-400",
                 children: "Bitte gültige Koordinaten eingeben."
             }, void 0, false, {
                 fileName: "[project]/app/OsmLinkForm.tsx",
-                lineNumber: 160,
+                lineNumber: 161,
                 columnNumber: 9
             }, this),
             isValid && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -203,7 +203,7 @@ function OsmLinkForm() {
                         children: "Aktuelles Wetter"
                     }, void 0, false, {
                         fileName: "[project]/app/OsmLinkForm.tsx",
-                        lineNumber: 166,
+                        lineNumber: 167,
                         columnNumber: 11
                     }, this),
                     weather ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -219,33 +219,33 @@ function OsmLinkForm() {
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/OsmLinkForm.tsx",
-                        lineNumber: 170,
+                        lineNumber: 171,
                         columnNumber: 13
                     }, this) : weatherError ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                         className: "mt-1 text-zinc-600 dark:text-zinc-400",
                         children: "Wetterdaten konnten nicht geladen werden."
                     }, void 0, false, {
                         fileName: "[project]/app/OsmLinkForm.tsx",
-                        lineNumber: 175,
+                        lineNumber: 176,
                         columnNumber: 13
                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                         className: "mt-1 text-zinc-500 dark:text-zinc-400",
                         children: "Lädt …"
                     }, void 0, false, {
                         fileName: "[project]/app/OsmLinkForm.tsx",
-                        lineNumber: 179,
+                        lineNumber: 180,
                         columnNumber: 13
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/OsmLinkForm.tsx",
-                lineNumber: 165,
+                lineNumber: 166,
                 columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/OsmLinkForm.tsx",
-        lineNumber: 105,
+        lineNumber: 106,
         columnNumber: 5
     }, this);
 }
