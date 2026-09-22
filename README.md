@@ -2,8 +2,10 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Verwendete APIs
 
-Alle Dienste sind frei nutzbar, ohne API-Schlüssel, und werden direkt aus dem Browser
-aufgerufen (CORS erlaubt). Es gibt keine serverseitigen Routen und keine Secrets.
+Alle Dienste sind frei nutzbar und brauchen keinen API-Schlüssel; es gibt keine Secrets.
+Die meisten werden direkt aus dem Browser aufgerufen (CORS erlaubt). Einzige Ausnahme sind die
+amtlichen Warnungen: NINA sendet keine CORS-Header, deshalb läuft dieser Aufruf über die
+Route `app/api/warnings/route.ts`.
 
 | Dienst | Zweck | Aufruf |
 | --- | --- | --- |
@@ -12,6 +14,8 @@ aufgerufen (CORS erlaubt). Es gibt keine serverseitigen Routen und keine Secrets
 | [Transitous](https://transitous.org) ([MOTIS](https://github.com/motis-project/motis)) | Haltestellen und Abfahrten, deutschlandweit | `GET api.transitous.org/api/v1/map/stops?min=…&max=…` für Haltestellen in einer Bounding-Box, danach `GET …/api/v1/stoptimes?stopId=…&n=…&radius=…` für die Abfahrten |
 | [Wikipedia](https://de.wikipedia.org) (MediaWiki API) | Fotos von Orten in der Umgebung | `GET de.wikipedia.org/w/api.php?action=query&generator=geosearch&ggscoord=…&prop=pageimages` |
 | [Wikimedia Commons](https://commons.wikimedia.org) (MediaWiki API) | Urheber und Lizenz zu diesen Fotos | `GET commons.wikimedia.org/w/api.php?action=query&titles=File:…&prop=imageinfo&iiprop=extmetadata` |
+| [NINA](https://warnung.bund.de) (Bundesamt für Bevölkerungsschutz) | Amtliche Gefahrenwarnungen | `GET warnung.bund.de/api31/dashboard/{AGS}.json`, **nur serverseitig** über `/api/warnings` |
+| [Nominatim](https://nominatim.openstreetmap.org) | Amtlicher Gemeindeschlüssel zu den Koordinaten, nur für NINA | `GET /reverse?lat=…&lon=…&extratags=1`, **nur serverseitig** |
 
 Hinweise zur Nutzung:
 
@@ -30,10 +34,36 @@ Hinweise zur Nutzung:
   werden deshalb aus Commons nachgeladen und unter jedem Foto angezeigt — dieser Schritt darf
   nicht wegoptimiert werden. Die Felder enthalten HTML und werden vor der Ausgabe in reinen
   Text umgewandelt, niemals per `dangerouslySetInnerHTML` eingebunden.
+- **Warnungen** brauchen den amtlichen Gemeindeschlüssel, den NINA nur auf Kreisebene kennt:
+  die ersten fünf Stellen des Regionalschlüssels, auf zwölf Stellen mit Nullen aufgefüllt.
+  Feinere Schlüssel (etwa einer Verbandsgemeinde) liefern 404. Den Schlüssel selbst liefert
+  Nominatim im Feld `de:regionalschluessel`. Angezeigt wird deshalb die Lage im ganzen
+  Landkreis, nicht am exakten Punkt.
+- Nominatim erlaubt höchstens eine Anfrage pro Sekunde und verlangt einen aussagekräftigen
+  `User-Agent`. Beides ist in der Route umgesetzt, die Antworten werden einen Tag lang
+  zwischengespeichert (Warnungen fünf Minuten).
+- Die Route nimmt ausschließlich geprüfte Zahlen als Koordinaten entgegen und gibt sonst 400
+  zurück — sie darf nie zu einem offenen Proxy für beliebige Ziele werden.
 - Alle Datenquellen sind Gemeinschaftsprojekte ohne Verfügbarkeitsgarantie. Fehler werden
   im UI abgefangen, nicht per Retry.
 
 Wird eine API ergänzt, ersetzt oder entfernt, gehört dieser Abschnitt mit angepasst.
+
+### Weitere Foto-Quellen (geprüft, nicht eingebaut)
+
+Stand 2026-09-22 auf Erreichbarkeit, Schlüsselpflicht und CORS getestet, falls die
+Wikipedia-Artikelbilder einmal nicht ausreichen:
+
+| Quelle | Schlüssel | Eignung |
+| --- | --- | --- |
+| [Mapillary](https://www.mapillary.com) | kostenloser Token nötig | Straßenfotos exakt am Punkt, CC-BY-SA. Inhaltlich die stärkste Ergänzung zur Karte. Der Token läge im Browser-Code offen — bei Mapillary vorgesehen, bindet das Projekt aber an ein Meta-Konto. |
+| [Flickr](https://www.flickr.com/services/api/) | API-Key nötig | Sehr großer Bestand, Geosuche mit Lizenzfilter (`flickr.photos.search` mit `lat`/`lon`/`radius`). Bildqualität und Ortsbezug schwanken stark. |
+| [Wikidata](https://query.wikidata.org) (SPARQL) | keiner, CORS offen | Läuft sofort. `SERVICE wikibase:around` plus `wdt:P18` liefert Objektfotos im Umkreis, teils andere Objekte als die Artikelsuche (U-Bahnhöfe, Institutionen). Naheliegendste Ergänzung ohne Registrierung. |
+| [iNaturalist](https://api.inaturalist.org/v1/docs/) | keiner, CORS offen | Tier- und Pflanzenfotos mit Koordinaten, sehr dichte Abdeckung. Zeigt Arten, keine Ortsansichten — nur für einen Naturschwerpunkt sinnvoll. |
+| [KartaView](https://kartaview.org) | — | War beim Test nicht erreichbar (weder `api.kartaview.org` noch `api.openstreetcam.org`). Vor einem Einbau erneut prüfen. |
+
+Nicht geeignet: Unsplash und Pexels haben keine echte Geosuche, Panoramio ist eingestellt,
+[Geograph](https://www.geograph.org.uk) deckt nur Großbritannien und Irland ab.
 
 ## Getting Started
 

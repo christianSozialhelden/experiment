@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import PlacePhotos from "./PlacePhotos";
+import SafetyWarnings from "./SafetyWarnings";
 import TransitDepartures from "./TransitDepartures";
 import WeatherIcon from "./WeatherIcon";
 
@@ -218,6 +219,7 @@ export default function OsmLinkForm() {
               Bitte gültige Koordinaten eingeben.
             </p>
           )}
+          <SafetyWarnings lat={latNum} lon={lonNum} enabled={isValid} />
         </div>
         <div className="flex flex-col gap-6">
           {isValid && (
