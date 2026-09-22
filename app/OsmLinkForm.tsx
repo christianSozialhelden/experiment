@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import TransitDepartures from "./TransitDepartures";
+import WeatherIcon from "./WeatherIcon";
 
 const WEATHER_CODES: Record<number, string> = {
   0: "Klar",
@@ -38,6 +39,7 @@ type Weather = {
   temperature: number;
   windSpeed: number;
   code: number;
+  isDay: boolean;
 };
 
 const CAPITALS = [
@@ -108,6 +110,7 @@ export default function OsmLinkForm() {
             temperature: data.current_weather.temperature,
             windSpeed: data.current_weather.windspeed,
             code: data.current_weather.weathercode,
+            isDay: data.current_weather.is_day === 1,
           },
         });
       } catch {
@@ -222,12 +225,37 @@ export default function OsmLinkForm() {
                 Aktuelles Wetter
               </h2>
               {current?.weather ? (
-                <p className="mt-2 text-zinc-700 dark:text-zinc-300">
-                  {WEATHER_CODES[current.weather.code] ??
-                    `Wettercode ${current.weather.code}`}
-                  , {current.weather.temperature} °C, Wind{" "}
-                  {current.weather.windSpeed} km/h
-                </p>
+                <div className="mt-2 flex items-center gap-4">
+                  <WeatherIcon
+                    code={current.weather.code}
+                    isDay={current.weather.isDay}
+                    className="h-16 w-16 shrink-0 text-blue-800 dark:text-blue-300"
+                  />
+                  <div className="text-zinc-800 dark:text-zinc-200">
+                    <p className="text-3xl font-semibold">
+                      {current.weather.temperature} °C
+                    </p>
+                    <p>
+                      {WEATHER_CODES[current.weather.code] ??
+                        `Wettercode ${current.weather.code}`}
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <svg
+                        aria-hidden="true"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={1.75}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="h-5 w-5 shrink-0"
+                      >
+                        <path d="M9.6 4.6A2 2 0 1 1 11 8H2m10.6 11.4A2 2 0 1 0 14 16H2m15.7-8.3A2.5 2.5 0 1 1 19.5 12H2" />
+                      </svg>
+                      {current.weather.windSpeed} km/h
+                    </p>
+                  </div>
+                </div>
               ) : current ? (
                 <p className="mt-2 text-zinc-700 dark:text-zinc-300">
                   Wetterdaten konnten nicht geladen werden.

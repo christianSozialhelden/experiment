@@ -17,7 +17,7 @@ const MODE_LABELS: Record<string, string> = {
 };
 
 type Departure = {
-  tripId: string;
+  id: string;
   line: string;
   headsign: string;
   mode: string;
@@ -125,11 +125,12 @@ export default function TransitDepartures({ lat, lon, enabled }: Props) {
               cancelled: boolean;
               place: {
                 name: string;
+                stopId: string;
                 departure: string;
                 scheduledDeparture: string;
               };
             }) => ({
-              tripId: s.tripId,
+              id: `${s.tripId}|${s.place.stopId}|${s.place.departure}`,
               line: s.displayName ?? s.routeShortName ?? "",
               headsign: s.headsign,
               mode: s.mode,
@@ -185,7 +186,7 @@ export default function TransitDepartures({ lat, lon, enabled }: Props) {
                 60000,
             );
             return (
-              <li key={d.tripId} className="flex items-baseline gap-3">
+              <li key={d.id} className="flex items-baseline gap-3">
                 <span
                   className="rounded px-2 py-1 font-semibold"
                   style={{
