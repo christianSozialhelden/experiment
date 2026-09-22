@@ -37,6 +37,23 @@ type Props = {
 
 type NearbyStop = { stopId: string; name: string; lat: number; lon: number };
 
+type RawStopTime = {
+  tripId: string;
+  displayName?: string;
+  routeShortName?: string;
+  headsign: string;
+  mode: string;
+  routeColor?: string;
+  routeTextColor?: string;
+  cancelled: boolean;
+  place: {
+    name: string;
+    stopId: string;
+    departure: string;
+    scheduledDeparture: string;
+  };
+};
+
 function distanceMeters(
   aLat: number,
   aLon: number,
@@ -113,23 +130,9 @@ export default function TransitDepartures({ lat, lon, enabled }: Props) {
         setResult({
           key: coordKey,
           stopName: stop.name,
-          departures: data.stopTimes.map(
-            (s: {
-              tripId: string;
-              displayName?: string;
-              routeShortName?: string;
-              headsign: string;
-              mode: string;
-              routeColor?: string;
-              routeTextColor?: string;
-              cancelled: boolean;
-              place: {
-                name: string;
-                stopId: string;
-                departure: string;
-                scheduledDeparture: string;
-              };
-            }) => ({
+          departures: (data.stopTimes as RawStopTime[])
+            .slice(0, 12)
+            .map((s) => ({
               id: `${s.tripId}|${s.place.stopId}|${s.place.departure}`,
               line: s.displayName ?? s.routeShortName ?? "",
               headsign: s.headsign,
@@ -140,8 +143,7 @@ export default function TransitDepartures({ lat, lon, enabled }: Props) {
               departure: s.place.departure,
               scheduledDeparture: s.place.scheduledDeparture,
               cancelled: s.cancelled,
-            }),
-          ),
+            })),
         });
       } catch {
         if (controller.signal.aborted) return;

@@ -10,6 +10,8 @@ aufgerufen (CORS erlaubt). Es gibt keine serverseitigen Routen und keine Secrets
 | [OpenStreetMap](https://www.openstreetmap.org) | Karte und Link zum Standort | `export/embed.html?bbox=…&marker=…` als `<iframe>`, plus `?mlat=…&mlon=…` als Weblink |
 | [Open-Meteo](https://open-meteo.com) | Aktuelles Wetter | `GET api.open-meteo.com/v1/forecast?latitude=…&longitude=…&current_weather=true` |
 | [Transitous](https://transitous.org) ([MOTIS](https://github.com/motis-project/motis)) | Haltestellen und Abfahrten, deutschlandweit | `GET api.transitous.org/api/v1/map/stops?min=…&max=…` für Haltestellen in einer Bounding-Box, danach `GET …/api/v1/stoptimes?stopId=…&n=…&radius=…` für die Abfahrten |
+| [Wikipedia](https://de.wikipedia.org) (MediaWiki API) | Fotos von Orten in der Umgebung | `GET de.wikipedia.org/w/api.php?action=query&generator=geosearch&ggscoord=…&prop=pageimages` |
+| [Wikimedia Commons](https://commons.wikimedia.org) (MediaWiki API) | Urheber und Lizenz zu diesen Fotos | `GET commons.wikimedia.org/w/api.php?action=query&titles=File:…&prop=imageinfo&iiprop=extmetadata` |
 
 Hinweise zur Nutzung:
 
@@ -20,7 +22,15 @@ Hinweise zur Nutzung:
   Bedarf von 1 km über 5 km auf 20 km, damit auch ländliche Gegenden abgedeckt sind.
 - Der Parameter `radius` bei `stoptimes` fasst alle Steige und Nachbarhaltestellen zusammen.
   Dieselbe Fahrt kann darum mehrfach erscheinen — einmal je Haltestelle.
-- Beide Datenquellen sind Gemeinschaftsprojekte ohne Verfügbarkeitsgarantie. Fehler werden
+- **Fotos** kommen aus Wikipedia-Artikeln in der Nähe, nicht aus der Commons-Geosuche: Letztere
+  liefert alles, was zufällig Koordinaten trägt, also auch Massenimporte ohne Ortsbezug.
+  Artikelbilder zeigen dagegen tatsächlich den Ort und haben einen lesbaren Titel, der sich als
+  Alt-Text eignet. Radius 1 km, ersatzweise 5 km.
+- Die Bilder stehen unter freien Lizenzen, die meist Namensnennung verlangen. Urheber und Lizenz
+  werden deshalb aus Commons nachgeladen und unter jedem Foto angezeigt — dieser Schritt darf
+  nicht wegoptimiert werden. Die Felder enthalten HTML und werden vor der Ausgabe in reinen
+  Text umgewandelt, niemals per `dangerouslySetInnerHTML` eingebunden.
+- Alle Datenquellen sind Gemeinschaftsprojekte ohne Verfügbarkeitsgarantie. Fehler werden
   im UI abgefangen, nicht per Retry.
 
 Wird eine API ergänzt, ersetzt oder entfernt, gehört dieser Abschnitt mit angepasst.
