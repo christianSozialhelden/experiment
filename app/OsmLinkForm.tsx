@@ -181,6 +181,7 @@ export default function OsmLinkForm() {
           />
         </label>
       </div>
+      <SafetyWarnings lat={latNum} lon={lonNum} enabled={isValid} />
       <div className="grid items-start gap-6 md:grid-cols-2 lg:grid-cols-3">
         <div className="flex flex-col gap-6">
           {embedUrl && (
@@ -219,7 +220,6 @@ export default function OsmLinkForm() {
               Bitte gültige Koordinaten eingeben.
             </p>
           )}
-          <SafetyWarnings lat={latNum} lon={lonNum} enabled={isValid} />
         </div>
         <div className="flex flex-col gap-6">
           {isValid && (
