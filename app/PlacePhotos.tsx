@@ -161,7 +161,7 @@ export default function PlacePhotos({ lat, lon, enabled }: Props) {
           Keine Fotos in der Nähe gefunden.
         </p>
       ) : (
-        <ul className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-3">
+        <ul className="mt-3 grid grid-cols-2 gap-4">
           {current.photos.map((photo) => (
             <li key={photo.pageId}>
               <a href={photo.articleUrl} target="_blank" rel="noopener noreferrer">
@@ -173,7 +173,7 @@ export default function PlacePhotos({ lat, lon, enabled }: Props) {
                   className="h-32 w-full rounded border-2 border-zinc-400 object-cover dark:border-zinc-600"
                   unoptimized
                 />
-                <span className="mt-1 block text-base text-blue-800 underline dark:text-blue-300">
+                <span className="mt-1 block hyphens-auto break-words text-base text-blue-800 underline dark:text-blue-300">
                   {photo.title}
                 </span>
               </a>

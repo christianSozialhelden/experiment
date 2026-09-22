@@ -180,7 +180,7 @@ export default function OsmLinkForm() {
           />
         </label>
       </div>
-      <div className="grid items-start gap-6 lg:grid-cols-2">
+      <div className="grid items-start gap-6 md:grid-cols-2 lg:grid-cols-3">
         <div className="flex flex-col gap-6">
           {embedUrl && (
             <iframe
@@ -218,7 +218,6 @@ export default function OsmLinkForm() {
               Bitte gültige Koordinaten eingeben.
             </p>
           )}
-          <PlacePhotos lat={latNum} lon={lonNum} enabled={isValid} />
         </div>
         <div className="flex flex-col gap-6">
           {isValid && (
@@ -267,6 +266,9 @@ export default function OsmLinkForm() {
               )}
             </div>
           )}
+          <PlacePhotos lat={latNum} lon={lonNum} enabled={isValid} />
+        </div>
+        <div className="flex flex-col gap-6">
           <TransitDepartures lat={latNum} lon={lonNum} enabled={isValid} />
         </div>
       </div>
