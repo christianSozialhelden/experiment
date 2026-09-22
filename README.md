@@ -16,6 +16,7 @@ Route `app/api/warnings/route.ts`.
 | [Wikimedia Commons](https://commons.wikimedia.org) (MediaWiki API) | Urheber und Lizenz zu diesen Fotos | `GET commons.wikimedia.org/w/api.php?action=query&titles=File:…&prop=imageinfo&iiprop=extmetadata` |
 | [NINA](https://warnung.bund.de) (Bundesamt für Bevölkerungsschutz) | Amtliche Gefahrenwarnungen | `GET warnung.bund.de/api31/dashboard/{AGS}.json`, **nur serverseitig** über `/api/warnings` |
 | [Nominatim](https://nominatim.openstreetmap.org) | Amtlicher Gemeindeschlüssel zu den Koordinaten, nur für NINA | `GET /reverse?lat=…&lon=…&extratags=1`, **nur serverseitig** |
+| [Mangrove](https://open-reviews.net) | Offene Bewertungen im Umkreis | `GET api.mangrove.reviews/reviews?sub={geo-URI}` |
 | [KartaView](https://kartaview.org) | Straßenfotos der Community | `kartaview.org/map/@{lat},{lon},17z` als `<iframe>` |
 | [Mapillary](https://www.mapillary.com) | 360°-Straßenfotos | nur als Weblink `mapillary.com/app/?lat=…&lng=…` |
 | [Panomax](https://www.panomax.com) | Feste 360°-Panoramakameras | nur als Weblink auf die Übersichtskarte |
@@ -47,6 +48,19 @@ Hinweise zur Nutzung:
   zwischengespeichert (Warnungen fünf Minuten).
 - Die Route nimmt ausschließlich geprüfte Zahlen als Koordinaten entgegen und gibt sonst 400
   zurück — sie darf nie zu einem offenen Proxy für beliebige Ziele werden.
+- **Mangrove** hat keinen Radius-Parameter. Der Umkreis steckt im Subject selbst, einem
+  `geo:`-URI nach RFC 5870: `geo:{lat},{lon}?u={Meter}`. Das `?u=` muss mit URL-kodiert werden
+  (`%3Fu%3D`), sonst liest die API es als eigenen Query-Parameter. Achtung: Unbekannte Parameter
+  werden still ignoriert — ein erfundenes `?geo=…` liefert HTTP 200 und Ergebnisse aus aller
+  Welt, was leicht für eine funktionierende Umkreissuche gehalten wird. Doku:
+  <https://docs.mangrove.reviews>. Für Karten-Viewports gibt es zusätzlich `GET /geo` mit
+  Bounding-Box.
+- **lib.reviews** ist als deaktiviertes Widget eingebunden und ruft nichts ab. Die Plattform
+  kennt keine Koordinatensuche, nur `GET /api/suggest/thing/{prefix}` über den Namen, und der
+  Datenbestand ist zu klein: Berlin ergab einen Treffer, München und Dresden keinen. Die API
+  ist undokumentiert (belegt im Quellcode von `routes/api.ts`), sendet CORS-Header und braucht
+  keine Anmeldung; `GET /api/thing` ohne `url`-Parameter antwortet allerdings gar nicht.
+  Für eine Reaktivierung müsste man den Ortsnamen serverseitig per Nominatim ermitteln.
 - **360°-Fotos** sind aus drei Diensten eingebunden, mit sehr unterschiedlichem Ergebnis:
   - *KartaView* lässt sich als `<iframe>` mit Koordinaten einbetten und zeigt die Fotopunkte
     direkt. Die JSON-API (`api.kartaview.org`) war bei allen Tests nicht erreichbar —

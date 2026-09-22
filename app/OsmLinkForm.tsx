@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import LibReviews from "./LibReviews";
+import MangroveReviews from "./MangroveReviews";
 import Panoramas from "./Panoramas";
 import PlacePhotos from "./PlacePhotos";
 import SafetyWarnings from "./SafetyWarnings";
@@ -221,6 +223,7 @@ export default function OsmLinkForm() {
               Bitte gültige Koordinaten eingeben.
             </p>
           )}
+          <MangroveReviews lat={latNum} lon={lonNum} enabled={isValid} />
         </div>
         <div className="flex flex-col gap-6">
           {isValid && (
@@ -274,6 +277,7 @@ export default function OsmLinkForm() {
         <div className="flex flex-col gap-6">
           <TransitDepartures lat={latNum} lon={lonNum} enabled={isValid} />
         </div>
+        <LibReviews enabled={isValid} />
         <Panoramas lat={latNum} lon={lonNum} enabled={isValid} />
       </div>
     </div>
