@@ -17,19 +17,11 @@ var mod = __turbopack_context__.x("url", () => require("url"));
 
 module.exports = mod;
 }),
-"[project]/experiment/postcss.config.mjs [postcss] (ecmascript)", ((__turbopack_context__) => {
-"use strict";
+"[project]/experiment/postcss.config.mjs [postcss] (ecmascript)", ((__turbopack_context__, module, exports) => {
 
-__turbopack_context__.s([
-    "default",
-    ()=>__TURBOPACK__default__export__
-]);
-const config = {
-    plugins: {
-        "@tailwindcss/postcss": {}
-    }
-};
-const __TURBOPACK__default__export__ = config;
+var e = new Error("Could not parse module '[project]/experiment/postcss.config.mjs', file not found");
+e.code = 'MODULE_UNPARSABLE';
+throw e;
 }),
 "[turbopack-node]/transforms/postcss.ts?config=[project]/experiment/postcss.config.mjs { CONFIG => \"[project]/experiment/postcss.config.mjs [postcss] (ecmascript)\" } [postcss] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
@@ -41,7 +33,7 @@ __turbopack_context__.s([
     ()=>init
 ]);
 // @ts-ignore
-var __TURBOPACK__imported__module__$5b$project$5d2f$experiment$2f$node_modules$2f$postcss$2f$lib$2f$postcss$2e$mjs__$5b$postcss$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/experiment/node_modules/postcss/lib/postcss.mjs [postcss] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$postcss$2f$lib$2f$postcss$2e$mjs__$5b$postcss$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/postcss/lib/postcss.mjs [postcss] (ecmascript)");
 // @ts-ignore
 var __TURBOPACK__imported__module__$5b$project$5d2f$experiment$2f$postcss$2e$config$2e$mjs__$5b$postcss$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/experiment/postcss.config.mjs [postcss] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$turbopack$2d$node$5d2f$transforms$2f$transforms$2e$ts__$5b$postcss$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[turbopack-node]/transforms/transforms.ts [postcss] (ecmascript)");
@@ -92,7 +84,7 @@ const init = async (ipc)=>{
         }
         return plugin;
     });
-    processor = (0, __TURBOPACK__imported__module__$5b$project$5d2f$experiment$2f$node_modules$2f$postcss$2f$lib$2f$postcss$2e$mjs__$5b$postcss$5d$__$28$ecmascript$29$__["default"])(loadedPlugins);
+    processor = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$postcss$2f$lib$2f$postcss$2e$mjs__$5b$postcss$5d$__$28$ecmascript$29$__["default"])(loadedPlugins);
 };
 async function transform(ipc, cssContent, name, sourceMap) {
     const { css, map, messages } = await processor.process(cssContent, {
