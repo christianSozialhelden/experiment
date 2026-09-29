@@ -15,6 +15,7 @@ Export auf GitHub Pages und hat deshalb keine serverseitigen Routen.
 | [Wikimedia Commons](https://commons.wikimedia.org) (MediaWiki API) | Urheber und Lizenz zu diesen Fotos | `GET commons.wikimedia.org/w/api.php?action=query&titles=File:…&prop=imageinfo&iiprop=extmetadata` |
 | [Mangrove](https://open-reviews.net) | Offene Bewertungen im Umkreis | `GET api.mangrove.reviews/reviews?sub={geo-URI}` |
 | [KartaView](https://kartaview.org) | Straßenfotos der Community | `GET api.openstreetcam.org/2.0/photo/?lat=…&lng=…&zoomLevel=18&join=sequence&orderBy=id&orderDirection=desc`, Bilder von `storage*.openstreetcam.org` |
+| [Panoramax](https://panoramax.fr) | Straßen- und 360°-Fotos, föderiert | `GET api.panoramax.xyz/api/search?place_position={lon},{lat}&place_distance=0-{Meter}&limit=100`, Bilder von der jeweiligen Instanz |
 | [Mapillary](https://www.mapillary.com) | 360°-Straßenfotos | nur als Weblink `mapillary.com/app/?lat=…&lng=…` |
 | [Panomax](https://www.panomax.com) | Feste 360°-Panoramakameras | nur als Weblink auf die Übersichtskarte |
 
@@ -64,6 +65,18 @@ Hinweise zur Nutzung:
   nein). Ein Token würde nur das Limit von 100 auf 1.000 Anfragen pro Stunde heben und läge im
   Browser-Code offen, deshalb keiner. Die Bilder stehen unter CC BY-SA 4.0; der Hinweis unter
   den Fotos muss bleiben.
+- **Panoramax** (`app/PanoramaxPhotos.tsx`) wird über den Metakatalog `api.panoramax.xyz`
+  abgefragt, der alle föderierten Instanzen (OSM France, IGN, …) durchsucht. Doku:
+  <https://docs.panoramax.fr/backend/api/api/>, STAC-API, ohne Token, CORS offen, Antwort in
+  unter 0,5 s. Achtung: `place_position` erwartet **Länge vor Breite**. Radius 200 m,
+  ersatzweise 1 km. Die Treffer kommen nicht nach Entfernung sortiert und enthalten viele fast
+  gleiche Fotos derselben Sequenz; die Komponente rechnet die Entfernung selbst und behält das
+  nächste Foto je Sequenz (`collection`). Bild-URLs liegen auf wechselnden Instanz-Hosts, daher
+  `unoptimized` statt `remotePatterns`. Lizenz und Urheber stehen je Foto im Ergebnis
+  (`properties.license`, meist CC-BY-SA-4.0 oder etalab-2.0; `providers` mit Rolle `producer`)
+  und werden unter jedem Foto angezeigt. 360° erkennt man an
+  `pers:interior_orientation.field_of_view = 360`. Stand 2026-09-29 ergänzt Panoramax KartaView
+  gut: Hamburg und München haben Treffer, Berlin-Mitte kaum.
 - **360°-Fotos** sind aus zwei weiteren Diensten nur als Weblink eingebunden:
   - *Mapillary* erlaubt Einbetten nur über `/embed` und nur mit einer konkreten Bild-ID; die
     bekommt man ausschließlich über die Graph API mit Token. Die Kartenansicht `/app` schickt

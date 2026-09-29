@@ -5,6 +5,7 @@ import KartaViewPhotos from "./KartaViewPhotos";
 import LibReviews from "./LibReviews";
 import MangroveReviews from "./MangroveReviews";
 import Panoramas from "./Panoramas";
+import PanoramaxPhotos from "./PanoramaxPhotos";
 import PlacePhotos from "./PlacePhotos";
 import SafetyWarnings from "./SafetyWarnings";
 import TransitDepartures from "./TransitDepartures";
@@ -279,6 +280,7 @@ export default function OsmLinkForm() {
           <TransitDepartures lat={latNum} lon={lonNum} enabled={isValid} />
         </div>
         <KartaViewPhotos lat={latNum} lon={lonNum} enabled={isValid} />
+        <PanoramaxPhotos lat={latNum} lon={lonNum} enabled={isValid} />
         <LibReviews enabled={isValid} />
         <Panoramas lat={latNum} lon={lonNum} enabled={isValid} />
       </div>
