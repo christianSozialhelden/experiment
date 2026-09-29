@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import KartaViewPhotos from "./KartaViewPhotos";
 import LibReviews from "./LibReviews";
 import MangroveReviews from "./MangroveReviews";
 import Panoramas from "./Panoramas";
@@ -277,6 +278,7 @@ export default function OsmLinkForm() {
         <div className="flex flex-col gap-6">
           <TransitDepartures lat={latNum} lon={lonNum} enabled={isValid} />
         </div>
+        <KartaViewPhotos lat={latNum} lon={lonNum} enabled={isValid} />
         <LibReviews enabled={isValid} />
         <Panoramas lat={latNum} lon={lonNum} enabled={isValid} />
       </div>

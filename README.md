@@ -14,7 +14,7 @@ Export auf GitHub Pages und hat deshalb keine serverseitigen Routen.
 | [Wikipedia](https://de.wikipedia.org) (MediaWiki API) | Fotos von Orten in der Umgebung | `GET de.wikipedia.org/w/api.php?action=query&generator=geosearch&ggscoord=…&prop=pageimages` |
 | [Wikimedia Commons](https://commons.wikimedia.org) (MediaWiki API) | Urheber und Lizenz zu diesen Fotos | `GET commons.wikimedia.org/w/api.php?action=query&titles=File:…&prop=imageinfo&iiprop=extmetadata` |
 | [Mangrove](https://open-reviews.net) | Offene Bewertungen im Umkreis | `GET api.mangrove.reviews/reviews?sub={geo-URI}` |
-| [KartaView](https://kartaview.org) | Straßenfotos der Community | `kartaview.org/map/@{lat},{lon},17z` als `<iframe>` |
+| [KartaView](https://kartaview.org) | Straßenfotos der Community | `GET api.openstreetcam.org/2.0/photo/?lat=…&lng=…&zoomLevel=18&join=sequence&orderBy=id&orderDirection=desc`, Bilder von `storage*.openstreetcam.org` |
 | [Mapillary](https://www.mapillary.com) | 360°-Straßenfotos | nur als Weblink `mapillary.com/app/?lat=…&lng=…` |
 | [Panomax](https://www.panomax.com) | Feste 360°-Panoramakameras | nur als Weblink auf die Übersichtskarte |
 
@@ -55,10 +55,16 @@ Hinweise zur Nutzung:
   ist undokumentiert (belegt im Quellcode von `routes/api.ts`), sendet CORS-Header und braucht
   keine Anmeldung; `GET /api/thing` ohne `url`-Parameter antwortet allerdings gar nicht.
   Für eine Reaktivierung müsste man den Ortsnamen serverseitig per Nominatim ermitteln.
-- **360°-Fotos** sind aus drei Diensten eingebunden, mit sehr unterschiedlichem Ergebnis:
-  - *KartaView* lässt sich als `<iframe>` mit Koordinaten einbetten und zeigt die Fotopunkte
-    direkt. Die JSON-API (`api.kartaview.org`) war bei allen Tests nicht erreichbar —
-    Verbindungsaufbau gelingt, die Antwort bleibt aus. Deshalb nur die Karteneinbettung.
+- **KartaView** zeigt die nächstgelegenen Straßenfotos (`app/KartaViewPhotos.tsx`), ohne Token.
+  Doku: <https://kartaview.org/doc/authentication>. Wichtig: nur mit `zoomLevel` und `orderBy=id&orderDirection=desc` suchen — fehlt die Sortierung, läuft die Abfrage ebenfalls in den Timeout. Die in
+  der Doku zuerst gezeigte Suche mit `radius` läuft serverseitig in `408 Query timeout`, auch mit
+  Token; `api.kartaview.org` antwortet nicht, nur `api.openstreetcam.org` (Stand 2026-09-29).
+  `zoomLevel` liefert das nächste Foto je Sequenz im Umkreis von etwa 200 m; ein kleinerer Wert
+  vergrößert den Umkreis nicht. Die Abdeckung ist lückenhaft (Berlin-Mitte ja, Hamburger Rathaus
+  nein). Ein Token würde nur das Limit von 100 auf 1.000 Anfragen pro Stunde heben und läge im
+  Browser-Code offen, deshalb keiner. Die Bilder stehen unter CC BY-SA 4.0; der Hinweis unter
+  den Fotos muss bleiben.
+- **360°-Fotos** sind aus zwei weiteren Diensten nur als Weblink eingebunden:
   - *Mapillary* erlaubt Einbetten nur über `/embed` und nur mit einer konkreten Bild-ID; die
     bekommt man ausschließlich über die Graph API mit Token. Die Kartenansicht `/app` schickt
     `X-Frame-Options: DENY`. Ohne Token bleibt daher nur der Weblink. Mit einem kostenlosen
@@ -81,7 +87,6 @@ Wikipedia-Artikelbilder einmal nicht ausreichen:
 | [Flickr](https://www.flickr.com/services/api/) | API-Key nötig | Sehr großer Bestand, Geosuche mit Lizenzfilter (`flickr.photos.search` mit `lat`/`lon`/`radius`). Bildqualität und Ortsbezug schwanken stark. |
 | [Wikidata](https://query.wikidata.org) (SPARQL) | keiner, CORS offen | Läuft sofort. `SERVICE wikibase:around` plus `wdt:P18` liefert Objektfotos im Umkreis, teils andere Objekte als die Artikelsuche (U-Bahnhöfe, Institutionen). Naheliegendste Ergänzung ohne Registrierung. |
 | [iNaturalist](https://api.inaturalist.org/v1/docs/) | keiner, CORS offen | Tier- und Pflanzenfotos mit Koordinaten, sehr dichte Abdeckung. Zeigt Arten, keine Ortsansichten — nur für einen Naturschwerpunkt sinnvoll. |
-| [KartaView](https://kartaview.org) | keiner | Karte ist als `<iframe>` eingebunden. Die JSON-API bleibt unerreichbar — für eigene Fotolisten statt Karteneinbettung erneut prüfen. |
 
 Nicht geeignet: Unsplash und Pexels haben keine echte Geosuche, Panoramio ist eingestellt,
 [Geograph](https://www.geograph.org.uk) deckt nur Großbritannien und Irland ab.

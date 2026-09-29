@@ -14,12 +14,6 @@ type Service = {
 function services(lat: number, lon: number): Service[] {
   return [
     {
-      name: "KartaView",
-      description: "Straßenfotos der Community.",
-      reason: "Die Karte lädt im eingebetteten Rahmen nicht zuverlässig.",
-      href: `https://kartaview.org/map/@${lat},${lon},17z`,
-    },
-    {
       name: "Mapillary",
       description: "360°-Straßenfotos an diesem Punkt.",
       reason: "Einbetten nur mit Bild-ID aus der Token-API möglich.",
