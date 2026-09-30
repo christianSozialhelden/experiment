@@ -69,6 +69,18 @@ const CAPITALS = [
   { name: "Wiesbaden", lat: "50.0782", lon: "8.2398" },
 ];
 
+const WORLD_CITIES = [
+  { name: "Moskau", lat: "55.7539", lon: "37.6208" },
+  { name: "New York", lat: "40.7128", lon: "-74.0060" },
+  { name: "Tallinn", lat: "59.4370", lon: "24.7536" },
+  { name: "Tokio", lat: "35.6812", lon: "139.7671" },
+];
+
+const PLACE_GROUPS = [
+  { legend: "Landeshauptstadt wählen", places: CAPITALS },
+  { legend: "Weitere Orte", places: WORLD_CITIES },
+];
+
 export default function OsmLinkForm() {
   const [lat, setLat] = useState("52.5200");
   const [lon, setLon] = useState("13.4050");
@@ -135,34 +147,36 @@ export default function OsmLinkForm() {
 
   return (
     <div className="flex w-full flex-col gap-6">
-      <fieldset className="flex flex-col gap-3">
-        <legend className="text-lg font-medium text-black dark:text-zinc-50">
-          Landeshauptstadt wählen
-        </legend>
-        <div className="flex flex-wrap gap-3">
-          {CAPITALS.map((city) => {
-            const active = city.lat === lat && city.lon === lon;
-            return (
-              <button
-                key={city.name}
-                type="button"
-                aria-pressed={active}
-                onClick={() => {
-                  setLat(city.lat);
-                  setLon(city.lon);
-                }}
-                className={`min-h-12 rounded-lg border-2 px-4 py-2 text-lg transition-colors ${
-                  active
-                    ? "border-blue-800 bg-blue-800 font-semibold text-white dark:border-blue-300 dark:bg-blue-300 dark:text-black"
-                    : "border-zinc-500 text-black hover:bg-black/[.06] dark:border-zinc-400 dark:text-zinc-50 dark:hover:bg-[#1a1a1a]"
-                }`}
-              >
-                {city.name}
-              </button>
-            );
-          })}
-        </div>
-      </fieldset>
+      {PLACE_GROUPS.map((group) => (
+        <fieldset key={group.legend} className="flex flex-col gap-3">
+          <legend className="text-lg font-medium text-black dark:text-zinc-50">
+            {group.legend}
+          </legend>
+          <div className="flex flex-wrap gap-3">
+            {group.places.map((city) => {
+              const active = city.lat === lat && city.lon === lon;
+              return (
+                <button
+                  key={city.name}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() => {
+                    setLat(city.lat);
+                    setLon(city.lon);
+                  }}
+                  className={`min-h-12 rounded-lg border-2 px-4 py-2 text-lg transition-colors ${
+                    active
+                      ? "border-blue-800 bg-blue-800 font-semibold text-white dark:border-blue-300 dark:bg-blue-300 dark:text-black"
+                      : "border-zinc-500 text-black hover:bg-black/[.06] dark:border-zinc-400 dark:text-zinc-50 dark:hover:bg-[#1a1a1a]"
+                  }`}
+                >
+                  {city.name}
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
+      ))}
       <div className="flex flex-col gap-6">
         <label className="flex flex-col gap-2 text-lg font-medium text-black dark:text-zinc-50">
           Breitengrad (lat)
