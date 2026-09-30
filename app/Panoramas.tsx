@@ -19,12 +19,6 @@ function services(lat: number, lon: number): Service[] {
       reason: "Einbetten nur mit Bild-ID aus der Token-API möglich.",
       href: `https://www.mapillary.com/app/?lat=${lat}&lng=${lon}&z=17`,
     },
-    {
-      name: "Panomax",
-      description: "Feste 360°-Panoramakameras, überwiegend im Alpenraum.",
-      reason: "Kein Zugriff über Koordinaten möglich.",
-      href: "https://www.panomax.com/map",
-    },
   ];
 }
 

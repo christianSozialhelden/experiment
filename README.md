@@ -13,11 +13,11 @@ Export auf GitHub Pages und hat deshalb keine serverseitigen Routen.
 | [Transitous](https://transitous.org) ([MOTIS](https://github.com/motis-project/motis)) | Haltestellen und Abfahrten, deutschlandweit | `GET api.transitous.org/api/v1/map/stops?min=…&max=…` für Haltestellen in einer Bounding-Box, danach `GET …/api/v1/stoptimes?stopId=…&n=…&radius=…` für die Abfahrten |
 | [Wikipedia](https://de.wikipedia.org) (MediaWiki API) | Fotos von Orten in der Umgebung | `GET de.wikipedia.org/w/api.php?action=query&generator=geosearch&ggscoord=…&prop=pageimages` |
 | [Wikimedia Commons](https://commons.wikimedia.org) (MediaWiki API) | Urheber und Lizenz zu diesen Fotos | `GET commons.wikimedia.org/w/api.php?action=query&titles=File:…&prop=imageinfo&iiprop=extmetadata` |
+| [Wikidata](https://www.wikidata.org) (MediaWiki API) | Relevante Artikel in der Nähe | `GET www.wikidata.org/w/api.php?action=query&list=geosearch&gscoord=…&gsradius=1000&gslimit=100`, danach `…?action=wbgetentities&ids=…&props=labels\|descriptions\|sitelinks/urls&languages=de&languagefallback=1` in Blöcken zu 50 IDs |
 | [Mangrove](https://open-reviews.net) | Offene Bewertungen im Umkreis | `GET api.mangrove.reviews/reviews?sub={geo-URI}` |
 | [KartaView](https://kartaview.org) | Straßenfotos der Community | `GET api.openstreetcam.org/2.0/photo/?lat=…&lng=…&zoomLevel=18&join=sequence&orderBy=id&orderDirection=desc`, Bilder von `storage*.openstreetcam.org` |
 | [Panoramax](https://panoramax.fr) | Straßen- und 360°-Fotos, föderiert | `GET api.panoramax.xyz/api/search?place_position={lon},{lat}&place_distance=0-{Meter}&limit=100`, Bilder von der jeweiligen Instanz |
 | [Mapillary](https://www.mapillary.com) | 360°-Straßenfotos | nur als Weblink `mapillary.com/app/?lat=…&lng=…` |
-| [Panomax](https://www.panomax.com) | Feste 360°-Panoramakameras | nur als Weblink auf die Übersichtskarte |
 
 Hinweise zur Nutzung:
 
@@ -43,6 +43,16 @@ Hinweise zur Nutzung:
   kennt den Gemeindeschlüssel nur auf Kreisebene — die ersten fünf Stellen des
   Regionalschlüssels, auf zwölf Stellen mit Nullen aufgefüllt; feinere Schlüssel liefern 404.
   Den Schlüssel selbst liefert Nominatim im Feld `de:regionalschluessel`.
+- **Wikidata** (`app/WikidataArticles.tsx`) findet über `list=geosearch` die 100 nächsten
+  Objekte im Umkreis von 1 km und lädt dann Bezeichnung, Beschreibung und Sitelinks per
+  `wbgetentities`. Als Relevanz gilt die Zahl der Wikipedia-Sprachversionen (Sitelinks auf
+  `*.wikipedia.org`); Objekte ohne jeden Wikipedia-Artikel fallen raus, angezeigt werden die
+  zwölf relevantesten. In Innenstädten reichen 100 Treffer oft nur 200–300 m weit, weil dort
+  Stolpersteine und Einzeldenkmale dicht liegen. Die
+  [REST API](https://www.wikidata.org/wiki/Wikidata:REST_API/de) (`/w/rest.php/wikibase/v1/…`)
+  ist bewusst nicht im Einsatz: Sie hat keine Geosuche und liefert nur ein Item pro Aufruf.
+  Beim Test mit 100 Einzelabrufen je Ort kam nach rund 250 Anfragen `429 Too Many Requests`
+  (Stand 2026-09-30). `wbgetentities` braucht für dieselben Daten zwei Aufrufe.
 - **Mangrove** hat keinen Radius-Parameter. Der Umkreis steckt im Subject selbst, einem
   `geo:`-URI nach RFC 5870: `geo:{lat},{lon}?u={Meter}`. Das `?u=` muss mit URL-kodiert werden
   (`%3Fu%3D`), sonst liest die API es als eigenen Query-Parameter. Achtung: Unbekannte Parameter
@@ -77,13 +87,14 @@ Hinweise zur Nutzung:
   und werden unter jedem Foto angezeigt. 360° erkennt man an
   `pers:interior_orientation.field_of_view = 360`. Stand 2026-09-29 ergänzt Panoramax KartaView
   gut: Hamburg und München haben Treffer, Berlin-Mitte kaum.
-- **360°-Fotos** sind aus zwei weiteren Diensten nur als Weblink eingebunden:
-  - *Mapillary* erlaubt Einbetten nur über `/embed` und nur mit einer konkreten Bild-ID; die
-    bekommt man ausschließlich über die Graph API mit Token. Die Kartenansicht `/app` schickt
-    `X-Frame-Options: DENY`. Ohne Token bleibt daher nur der Weblink. Mit einem kostenlosen
-    Token ließe sich das nächstgelegene Bild ermitteln und einbetten.
-  - *Panomax* hat keine öffentliche API und keine URL, die Koordinaten entgegennimmt. Der Link
-    führt auf die Übersichtskarte, die Kameras stehen überwiegend im Alpenraum.
+- **360°-Fotos von Mapillary** sind nur als Weblink eingebunden: Mapillary erlaubt Einbetten
+  nur über `/embed` und nur mit einer konkreten Bild-ID; die bekommt man ausschließlich über
+  die Graph API mit Token. Die Kartenansicht `/app` schickt `X-Frame-Options: DENY`. Ohne
+  Token bleibt daher nur der Weblink. Mit einem kostenlosen Token ließe sich das
+  nächstgelegene Bild ermitteln und einbetten.
+- **Panomax** (feste 360°-Panoramakameras, überwiegend im Alpenraum) war als Weblink-Karte
+  eingebunden und ist seit 2026-09-30 entfernt: keine öffentliche API, keine URL, die
+  Koordinaten entgegennimmt — der Link führte nur auf die allgemeine Übersichtskarte.
 - Alle Datenquellen sind Gemeinschaftsprojekte ohne Verfügbarkeitsgarantie. Fehler werden
   im UI abgefangen, nicht per Retry.
 

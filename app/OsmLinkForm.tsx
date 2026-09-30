@@ -10,6 +10,7 @@ import PlacePhotos from "./PlacePhotos";
 import SafetyWarnings from "./SafetyWarnings";
 import TransitDepartures from "./TransitDepartures";
 import WeatherIcon from "./WeatherIcon";
+import WikidataArticles from "./WikidataArticles";
 
 const WEATHER_CODES: Record<number, string> = {
   0: "Klar",
@@ -279,6 +280,7 @@ export default function OsmLinkForm() {
         <div className="flex flex-col gap-6">
           <TransitDepartures lat={latNum} lon={lonNum} enabled={isValid} />
         </div>
+        <WikidataArticles lat={latNum} lon={lonNum} enabled={isValid} />
         <KartaViewPhotos lat={latNum} lon={lonNum} enabled={isValid} />
         <PanoramaxPhotos lat={latNum} lon={lonNum} enabled={isValid} />
         <LibReviews enabled={isValid} />
