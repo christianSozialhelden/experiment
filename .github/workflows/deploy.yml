@@ -27,6 +27,7 @@ jobs:
       - run: npm run build
         env:
           GITHUB_PAGES: "true"
+          NEXT_PUBLIC_MAPILLARY_TOKEN: ${{ secrets.MAPILLARY_TOKEN }}
       - run: touch out/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import KartaViewPhotos from "./KartaViewPhotos";
 import LibReviews from "./LibReviews";
+import MapillaryPhotos from "./MapillaryPhotos";
 import MangroveReviews from "./MangroveReviews";
-import Panoramas from "./Panoramas";
 import PanoramaxPhotos from "./PanoramaxPhotos";
 import PlacePhotos from "./PlacePhotos";
 import SafetyWarnings from "./SafetyWarnings";
@@ -284,7 +284,7 @@ export default function OsmLinkForm() {
         <KartaViewPhotos lat={latNum} lon={lonNum} enabled={isValid} />
         <PanoramaxPhotos lat={latNum} lon={lonNum} enabled={isValid} />
         <LibReviews enabled={isValid} />
-        <Panoramas lat={latNum} lon={lonNum} enabled={isValid} />
+        <MapillaryPhotos lat={latNum} lon={lonNum} enabled={isValid} />
       </div>
     </div>
   );

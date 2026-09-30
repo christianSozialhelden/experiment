@@ -2,7 +2,8 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Verwendete APIs
 
-Alle Dienste sind frei nutzbar und brauchen keinen API-Schlüssel; es gibt keine Secrets.
+Alle Dienste sind frei nutzbar. Einzige Ausnahme ist Mapillary: Es braucht einen kostenlosen
+Client-Token (siehe unten); alle anderen kommen ohne API-Schlüssel aus.
 Alle werden direkt aus dem Browser aufgerufen (CORS erlaubt). Die Seite läuft als statischer
 Export auf GitHub Pages und hat deshalb keine serverseitigen Routen.
 
@@ -17,7 +18,7 @@ Export auf GitHub Pages und hat deshalb keine serverseitigen Routen.
 | [Mangrove](https://open-reviews.net) | Offene Bewertungen im Umkreis | `GET api.mangrove.reviews/reviews?sub={geo-URI}` |
 | [KartaView](https://kartaview.org) | Straßenfotos der Community | `GET api.openstreetcam.org/2.0/photo/?lat=…&lng=…&zoomLevel=18&join=sequence&orderBy=id&orderDirection=desc`, Bilder von `storage*.openstreetcam.org` |
 | [Panoramax](https://panoramax.fr) | Straßen- und 360°-Fotos, föderiert | `GET api.panoramax.xyz/api/search?place_position={lon},{lat}&place_distance=0-{Meter}&limit=100`, Bilder von der jeweiligen Instanz |
-| [Mapillary](https://www.mapillary.com) | 360°-Straßenfotos | nur als Weblink `mapillary.com/app/?lat=…&lng=…` |
+| [Mapillary](https://www.mapillary.com) | Straßen- und 360°-Fotos mit eingebettetem Viewer | `GET graph.mapillary.com/images?access_token=…&bbox=…&fields=id,captured_at,is_pano,sequence,geometry`, danach `GET graph.mapillary.com/{id}?fields=thumb_1024_url,creator` je angezeigtem Foto, Viewer als `<iframe>` von `mapillary.com/embed?image_key=…`; ohne Token nur Weblink |
 
 Hinweise zur Nutzung:
 
@@ -87,11 +88,33 @@ Hinweise zur Nutzung:
   und werden unter jedem Foto angezeigt. 360° erkennt man an
   `pers:interior_orientation.field_of_view = 360`. Stand 2026-09-29 ergänzt Panoramax KartaView
   gut: Hamburg und München haben Treffer, Berlin-Mitte kaum.
-- **360°-Fotos von Mapillary** sind nur als Weblink eingebunden: Mapillary erlaubt Einbetten
-  nur über `/embed` und nur mit einer konkreten Bild-ID; die bekommt man ausschließlich über
-  die Graph API mit Token. Die Kartenansicht `/app` schickt `X-Frame-Options: DENY`. Ohne
-  Token bleibt daher nur der Weblink. Mit einem kostenlosen Token ließe sich das
-  nächstgelegene Bild ermitteln und einbetten.
+- **Mapillary** (`app/MapillaryPhotos.tsx`) sucht über die Graph API
+  (<https://www.mapillary.com/developer/api-documentation>) Fotos in einer Bounding-Box um den
+  Punkt (Größe siehe unten), behält das nächste Foto je Sequenz und zeigt bis zu
+  sechs Vorschaubilder. Das nächstgelegene läuft im eingebetteten Viewer
+  (`mapillary.com/embed?image_key=…&style=photo`, 360° drehbar); ein Klick auf ein
+  Vorschaubild wechselt das Foto. Die Kartenansicht `/app` schickt `X-Frame-Options: DENY`,
+  nur `/embed` lässt sich einbetten, und das nur mit Bild-ID aus der Graph API.
+  - Die Graph API verlangt einen Token, auch zum Lesen; ohne kommt
+    `190 Invalid OAuth 2.0 Access Token`, die Vektorkacheln antworten mit 403.
+  - Der Token ist ein kostenloser *Client-Token* (`MLY|…`) aus einer App unter
+    <https://www.mapillary.com/dashboard/developers>. Er ist für den Browser gedacht und nur
+    lesend; er landet beim Build im JavaScript und ist damit öffentlich einsehbar.
+  - Lokal steht er in `.env.local` als `NEXT_PUBLIC_MAPILLARY_TOKEN=…` (Dev-Server danach neu
+    starten). Für GitHub Pages liest der Workflow das Repository-Secret `MAPILLARY_TOKEN`.
+  - Fehlt der Token, zeigt das Widget eine „Nicht verfügbar“-Karte mit Weblink.
+  - Die Bounding-Box-Suche ist der heikle Teil: In dichten Gegenden (Berlin-Mitte) antwortet
+    die API mit HTTP 500 „Please reduce the amount of data you're asking for“ — schon bei
+    200 m Kantenlänge und auch mit `limit=25` und nur leichten Feldern (Stand 2026-09-30).
+    Entscheidend ist also die Fläche. Das Widget beginnt mit 100 m Kantenlänge, halbiert die
+    Box bei einem 500 (bis etwa 12 m) und vergrößert sie nur bei leerem Ergebnis (bis 1,6 km).
+    Vorschau-URL und Urheber werden danach einzeln für die höchstens sechs angezeigten Fotos
+    geholt (`GET /{id}`). Die Suche liefert nicht nach Entfernung sortiert; bei gekapptem
+    Limit kann das nächste Foto fehlen.
+  - Fehlermeldungen der Graph API (`error.message`) zeigt das Widget an, damit man sie ohne
+    Entwicklerwerkzeuge sieht.
+  - Bilder stehen unter CC BY-SA 4.0; Lizenz und Urheber (`creator.username`) stehen unter
+    dem Viewer und müssen dort bleiben.
 - **Panomax** (feste 360°-Panoramakameras, überwiegend im Alpenraum) war als Weblink-Karte
   eingebunden und ist seit 2026-09-30 entfernt: keine öffentliche API, keine URL, die
   Koordinaten entgegennimmt — der Link führte nur auf die allgemeine Übersichtskarte.
@@ -107,7 +130,6 @@ Wikipedia-Artikelbilder einmal nicht ausreichen:
 
 | Quelle | Schlüssel | Eignung |
 | --- | --- | --- |
-| [Mapillary](https://www.mapillary.com) | kostenloser Token nötig | Inzwischen als Weblink eingebunden. Mit Token ließe sich das nächstgelegene Bild einbetten statt nur zu verlinken; der Token läge im Browser-Code offen und bindet das Projekt an ein Meta-Konto. |
 | [Flickr](https://www.flickr.com/services/api/) | API-Key nötig | Sehr großer Bestand, Geosuche mit Lizenzfilter (`flickr.photos.search` mit `lat`/`lon`/`radius`). Bildqualität und Ortsbezug schwanken stark. |
 | [Wikidata](https://query.wikidata.org) (SPARQL) | keiner, CORS offen | Läuft sofort. `SERVICE wikibase:around` plus `wdt:P18` liefert Objektfotos im Umkreis, teils andere Objekte als die Artikelsuche (U-Bahnhöfe, Institutionen). Naheliegendste Ergänzung ohne Registrierung. |
 | [iNaturalist](https://api.inaturalist.org/v1/docs/) | keiner, CORS offen | Tier- und Pflanzenfotos mit Koordinaten, sehr dichte Abdeckung. Zeigt Arten, keine Ortsansichten — nur für einen Naturschwerpunkt sinnvoll. |
