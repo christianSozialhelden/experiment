@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import KartaViewPhotos from "./KartaViewPhotos";
-import LibReviews from "./LibReviews";
+import LocationMap from "./LocationMap";
 import MapillaryPhotos from "./MapillaryPhotos";
 import MangroveReviews from "./MangroveReviews";
 import PanoramaxPhotos from "./PanoramaxPhotos";
@@ -99,10 +99,6 @@ export default function OsmLinkForm() {
 
   const osmUrl = isValid
     ? `https://www.openstreetmap.org/?mlat=${latNum}&mlon=${lonNum}#map=18/${latNum}/${lonNum}`
-    : null;
-
-  const embedUrl = isValid
-    ? `https://www.openstreetmap.org/export/embed.html?bbox=${(lonNum - 0.005).toFixed(6)},${(latNum - 0.0025).toFixed(6)},${(lonNum + 0.005).toFixed(6)},${(latNum + 0.0025).toFixed(6)}&layer=mapnik&marker=${latNum},${lonNum}`
     : null;
 
   const coordKey = `${latNum},${lonNum}`;
@@ -204,13 +200,14 @@ export default function OsmLinkForm() {
       <SafetyWarnings enabled={isValid} />
       <div className="grid items-start gap-6 md:grid-cols-2 lg:grid-cols-3">
         <div className="flex flex-col gap-6">
-          {embedUrl && (
-            <iframe
-              key={embedUrl}
-              src={embedUrl}
-              title="Karte von OpenStreetMap"
-              loading="lazy"
-              className="h-96 w-full rounded-lg border-2 border-zinc-500 dark:border-zinc-400"
+          {isValid && (
+            <LocationMap
+              lat={latNum}
+              lon={lonNum}
+              onMove={(newLat, newLon) => {
+                setLat(newLat.toFixed(5));
+                setLon(newLon.toFixed(5));
+              }}
             />
           )}
           {osmUrl ? (
@@ -297,7 +294,6 @@ export default function OsmLinkForm() {
         <WikidataArticles lat={latNum} lon={lonNum} enabled={isValid} />
         <KartaViewPhotos lat={latNum} lon={lonNum} enabled={isValid} />
         <PanoramaxPhotos lat={latNum} lon={lonNum} enabled={isValid} />
-        <LibReviews enabled={isValid} />
         <MapillaryPhotos lat={latNum} lon={lonNum} enabled={isValid} />
       </div>
     </div>
