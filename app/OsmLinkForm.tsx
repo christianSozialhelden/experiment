@@ -143,6 +143,16 @@ export default function OsmLinkForm() {
 
   return (
     <div className="flex w-full flex-col gap-6">
+      {isValid && (
+        <LocationMap
+          lat={latNum}
+          lon={lonNum}
+          onMove={(newLat, newLon) => {
+            setLat(newLat.toFixed(5));
+            setLon(newLon.toFixed(5));
+          }}
+        />
+      )}
       {PLACE_GROUPS.map((group) => (
         <fieldset key={group.legend} className="flex flex-col gap-3">
           <legend className="text-lg font-medium text-black dark:text-zinc-50">
@@ -200,16 +210,6 @@ export default function OsmLinkForm() {
       <SafetyWarnings enabled={isValid} />
       <div className="grid items-start gap-6 md:grid-cols-2 lg:grid-cols-3">
         <div className="flex flex-col gap-6">
-          {isValid && (
-            <LocationMap
-              lat={latNum}
-              lon={lonNum}
-              onMove={(newLat, newLon) => {
-                setLat(newLat.toFixed(5));
-                setLon(newLon.toFixed(5));
-              }}
-            />
-          )}
           {osmUrl ? (
             <a
               href={osmUrl}

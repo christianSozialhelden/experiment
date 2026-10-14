@@ -62,3 +62,45 @@ body {
 .dark :focus-visible {
   outline-color: #93c5fd;
 }
+
+/* Karte im Dark Mode: OSM bietet keine dunklen Kacheln, deshalb werden sie per Filter
+   invertiert. hue-rotate dreht die Farben zurück, damit Wasser blau und Parks grün bleiben.
+   Nur die Kachelebene, nicht die Nadel. */
+.location-map .leaflet-tile-pane {
+  @variant dark {
+    filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+  }
+}
+
+.location-map.leaflet-container {
+  @variant dark {
+    background: #262626;
+  }
+}
+
+.location-map .leaflet-bar a {
+  @variant dark {
+    background: #1f1f1f;
+    color: #ededed;
+    border-color: #525252;
+  }
+}
+
+.location-map .leaflet-bar a:hover {
+  @variant dark {
+    background: #333333;
+  }
+}
+
+.location-map.leaflet-container .leaflet-control-attribution {
+  @variant dark {
+    background: rgb(0 0 0 / 0.75);
+    color: #d4d4d4;
+  }
+}
+
+.location-map.leaflet-container .leaflet-control-attribution a {
+  @variant dark {
+    color: #93c5fd;
+  }
+}
