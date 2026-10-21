@@ -262,7 +262,7 @@ export default function MapillaryPhotos({ lat, lon, enabled }: Props) {
   const selected = current?.photos?.find((p) => p.id === selectedId);
 
   return (
-    <div className="rounded-lg border-2 border-zinc-400 p-4 text-lg md:col-span-2 lg:col-span-3 dark:border-zinc-600">
+    <div className="rounded-lg border-2 border-zinc-400 p-4 text-lg dark:border-zinc-600">
       <h2 className="text-xl font-semibold text-black dark:text-zinc-50">
         Straßenfotos von Mapillary
       </h2>
