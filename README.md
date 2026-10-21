@@ -10,6 +10,7 @@ Export auf GitHub Pages und hat deshalb keine serverseitigen Routen.
 | Dienst | Zweck | Aufruf |
 | --- | --- | --- |
 | [OpenStreetMap](https://www.openstreetmap.org) | Karte und Link zum Standort | Kacheln von `tile.openstreetmap.org/{z}/{x}/{y}.png` in [Leaflet](https://leafletjs.com), plus `?mlat=…&mlon=…` als Weblink |
+| [Nominatim](https://nominatim.org) | Ortssuche nach Name oder Adresse | `GET nominatim.openstreetmap.org/search?q=…&format=jsonv2&limit=8&accept-language=de` |
 | [Open-Meteo](https://open-meteo.com) | Aktuelles Wetter | `GET api.open-meteo.com/v1/forecast?latitude=…&longitude=…&current_weather=true` |
 | [Transitous](https://transitous.org) ([MOTIS](https://github.com/motis-project/motis)) | Haltestellen und Abfahrten, deutschlandweit | `GET api.transitous.org/api/v1/map/stops?min=…&max=…` für Haltestellen in einer Bounding-Box, danach `GET …/api/v1/stoptimes?stopId=…&n=…&radius=…` für die Abfahrten |
 | [Wikipedia](https://de.wikipedia.org) (MediaWiki API) | Fotos von Orten in der Umgebung | `GET de.wikipedia.org/w/api.php?action=query&generator=geosearch&ggscoord=…&prop=pageimages` |
@@ -29,6 +30,11 @@ Hinweise zur Nutzung:
   ist ein eigenes SVG, weil der Bundler Leaflets Standard-PNGs nicht findet. Die
   [Tile-Nutzungsrichtlinie](https://operations.osmfoundation.org/policies/tiles/) verlangt
   die sichtbare Namensnennung unten rechts; sie muss bleiben.
+- **Ortssuche** (`app/PlaceSearch.tsx`) fragt Nominatim erst beim Absenden ab, nicht beim
+  Tippen: Die [Nutzungsrichtlinie](https://operations.osmfoundation.org/policies/nominatim/)
+  verbietet Autovervollständigung und erlaubt höchstens eine Anfrage pro Sekunde. Wer
+  Vorschläge beim Tippen will, braucht einen anderen Dienst (z. B. Photon). Die Auswahl eines
+  Treffers setzt die Koordinaten, damit laden alle Bereiche neu.
 - **Open-Meteo** liefert `weathercode` nach WMO-Schlüssel; die deutschen Bezeichnungen und
   die Icon-Auswahl liegen in `app/OsmLinkForm.tsx` bzw. `app/WeatherIcon.tsx`.
 - **Transitous** wird in zwei Schritten abgefragt, weil `reverse-geocode` nur Orte und POIs

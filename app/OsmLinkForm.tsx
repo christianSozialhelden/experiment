@@ -6,6 +6,7 @@ import LocationMap from "./LocationMap";
 import MapillaryPhotos from "./MapillaryPhotos";
 import MangroveReviews from "./MangroveReviews";
 import PanoramaxPhotos from "./PanoramaxPhotos";
+import PlaceSearch from "./PlaceSearch";
 import PlacePhotos from "./PlacePhotos";
 import SafetyWarnings from "./SafetyWarnings";
 import TransitDepartures from "./TransitDepartures";
@@ -156,6 +157,12 @@ export default function OsmLinkForm() {
 
   return (
     <div className="flex w-full flex-col gap-6">
+      <PlaceSearch
+        onSelect={(newLat, newLon) => {
+          setLat(newLat.toFixed(5));
+          setLon(newLon.toFixed(5));
+        }}
+      />
       {isValid && (
         <LocationMap
           lat={latNum}
