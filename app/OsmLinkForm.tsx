@@ -76,7 +76,20 @@ const WORLD_CITIES = [
   { name: "Tokio", lat: "35.6812", lon: "139.7671" },
 ];
 
+const POIS = [
+  { name: "Sozialhelden Büro", lat: "52.5254", lon: "13.3670" },
+  { name: "Brandenburger Tor", lat: "52.5163", lon: "13.3777" },
+  { name: "München Hauptbahnhof", lat: "48.1407", lon: "11.5569" },
+  { name: "Kölner Dom", lat: "50.9413", lon: "6.9581" },
+  { name: "Elbphilharmonie Hamburg", lat: "53.5413", lon: "9.9842" },
+  { name: "Eiffelturm Paris", lat: "48.8583", lon: "2.2945" },
+  { name: "Kolosseum Rom", lat: "41.8909", lon: "12.4919" },
+  { name: "Big Ben London", lat: "51.5007", lon: "-0.1246" },
+  { name: "Freiheitsstatue New York", lat: "40.6893", lon: "-74.0445" },
+];
+
 const PLACE_GROUPS = [
+  { legend: "In der Nähe von …", places: POIS },
   { legend: "Landeshauptstadt wählen", places: CAPITALS },
   { legend: "Weitere Orte", places: WORLD_CITIES },
 ];

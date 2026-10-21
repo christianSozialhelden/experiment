@@ -15,6 +15,14 @@ export default function Home() {
           </div>
           <ThemeToggle />
         </header>
+        <p className="w-full max-w-3xl self-start pb-8 text-lg text-zinc-700 dark:text-zinc-300">
+          Was gibt es rund um einen Ort? Wähle einen Ort aus, gib Koordinaten
+          ein oder verschiebe die Nadel auf der Karte. Die Seite zeigt dann
+          Wetter, Abfahrten an Haltestellen in der Nähe, Fotos und
+          Wikipedia-Artikel zur Umgebung, offene Bewertungen und Straßenfotos
+          aus Community-Projekten. Alle Daten kommen live aus freien,
+          offenen Diensten.
+        </p>
         <OsmLinkForm />
       </main>
     </div>
