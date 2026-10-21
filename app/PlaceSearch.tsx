@@ -11,7 +11,7 @@ type Place = {
 };
 
 type Props = {
-  onSelect: (lat: number, lon: number) => void;
+  onSelect: (lat: number, lon: number, name: string) => void;
 };
 
 type WikipediaPage = {
@@ -151,7 +151,7 @@ export default function PlaceSearch({ onSelect }: Props) {
   }, [suggesting, q]);
 
   function select(place: Place) {
-    onSelect(place.lat, place.lon);
+    onSelect(place.lat, place.lon, place.name);
     setSelected(place.name);
     setQuery(place.name);
     setOpen(false);

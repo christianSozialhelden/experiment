@@ -41,6 +41,10 @@ Hinweise zur Nutzung:
   nicht erreichbar. Alle Anfragen brechen nach 8 s ab, damit die Anzeige nicht hängen bleibt.
   Das Feld folgt dem ARIA-Combobox-Muster (Pfeiltasten, Enter, Escape). Die Auswahl eines
   Treffers setzt die Koordinaten, damit laden alle Bereiche neu.
+- **Gespeicherte Orte** (`app/savedPlaces.ts`) liegen im `localStorage` des Browsers, weil die
+  Seite ohne Server läuft: Sie gelten nur für diesen Browser und dieses Gerät, werden mit den
+  Website-Daten gelöscht und nie übertragen. Ist `localStorage` gesperrt, bleibt die Liste bis
+  zum Neuladen im Speicher. Höchstens 50 Einträge.
 - **Open-Meteo** liefert `weathercode` nach WMO-Schlüssel; die deutschen Bezeichnungen und
   die Icon-Auswahl liegen in `app/OsmLinkForm.tsx` bzw. `app/WeatherIcon.tsx`.
 - **Transitous** wird in zwei Schritten abgefragt, weil `reverse-geocode` nur Orte und POIs

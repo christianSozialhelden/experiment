@@ -1,13 +1,18 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import { removePlace, useSavedPlaces } from "./savedPlaces";
 
 type Place = { name: string; lat: string; lon: string };
 
 type Props = {
   lat: string;
   lon: string;
-  onSelect: (lat: string, lon: string) => void;
+  // Aktiver Reiter liegt beim Aufrufer, damit „Ort speichern“ neben der Suche
+  // den Reiter „Gespeichert“ öffnen kann.
+  groupIndex: number;
+  onGroupChange: (index: number) => void;
+  onSelect: (lat: string, lon: string, name: string) => void;
 };
 
 const POIS = [
@@ -50,11 +55,18 @@ const WORLD_CITIES = [
 
 type TabColors = { active: string; inactive: string; line: string };
 
+type PlaceGroup = {
+  label: string;
+  places: Place[];
+  colors: TabColors;
+  removable?: boolean;
+};
+
 // Verwandte Blautöne, passend zum Blau der Buttons. Klassen vollständig
 // ausgeschrieben, damit Tailwind sie beim Scannen findet.
 // Weiße Schrift auf den 700er-Tönen und schwarze auf den 300er-Tönen (Dark
 // Mode) erreichen jeweils mindestens 4,5:1 Kontrast.
-const PLACE_GROUPS: { label: string; places: Place[]; colors: TabColors }[] = [
+const PLACE_GROUPS: PlaceGroup[] = [
   {
     label: "Sehenswürdigkeiten",
     places: POIS,
@@ -87,20 +99,55 @@ const PLACE_GROUPS: { label: string; places: Place[]; colors: TabColors }[] = [
   },
 ];
 
+const SAVED_COLORS: TabColors = {
+  active: "bg-slate-700 text-white dark:bg-slate-300 dark:text-black",
+  inactive:
+    "bg-slate-100 text-slate-900 hover:bg-slate-200 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800",
+  line: "border-slate-700 dark:border-slate-300",
+};
+
+export const SAVED_INDEX = PLACE_GROUPS.length;
+
+// Reiter, der den Ort mit diesen Koordinaten enthält; sonst der erste.
+export function initialGroupIndex(lat: string, lon: string) {
+  return Math.max(
+    PLACE_GROUPS.findIndex((group) =>
+      group.places.some((place) => place.lat === lat && place.lon === lon),
+    ),
+    0,
+  );
+}
+
+const PLACE_BUTTON =
+  "min-h-12 border-2 px-4 py-2 text-left text-lg transition-colors";
+const PLACE_ACTIVE =
+  "border-blue-800 bg-blue-800 font-semibold text-white dark:border-blue-300 dark:bg-blue-300 dark:text-black";
+const PLACE_INACTIVE =
+  "border-zinc-500 text-black hover:bg-black/[.06] dark:border-zinc-400 dark:text-zinc-50 dark:hover:bg-[#1a1a1a]";
+
 // Reiter nach dem ARIA-Tabs-Muster: Nur der aktive Reiter ist per Tab erreichbar,
 // Pfeiltasten, Pos1 und Ende wechseln zwischen ihnen.
-export default function PlacePicker({ lat, lon, onSelect }: Props) {
+export default function PlacePicker({
+  lat,
+  lon,
+  groupIndex,
+  onGroupChange: setGroupIndex,
+  onSelect,
+}: Props) {
   const id = useId();
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  const [groupIndex, setGroupIndex] = useState(() =>
-    Math.max(
-      PLACE_GROUPS.findIndex((group) =>
-        group.places.some((place) => place.lat === lat && place.lon === lon),
-      ),
-      0,
-    ),
-  );
-  const group = PLACE_GROUPS[groupIndex];
+  const saved = useSavedPlaces();
+  const [announcement, setAnnouncement] = useState("");
+  const groups: PlaceGroup[] = [
+    ...PLACE_GROUPS,
+    {
+      label: "Gespeichert",
+      places: saved,
+      colors: SAVED_COLORS,
+      removable: true,
+    },
+  ];
+  const group = groups[groupIndex];
 
   // Aktiven Reiter in der scrollbaren Leiste sichtbar machen. scrollIntoView
   // würde auch die Seite verschieben, darum nur die Leiste selbst scrollen.
@@ -119,7 +166,7 @@ export default function PlacePicker({ lat, lon, onSelect }: Props) {
   }, [groupIndex]);
 
   function focusTab(index: number) {
-    const next = (index + PLACE_GROUPS.length) % PLACE_GROUPS.length;
+    const next = (index + groups.length) % groups.length;
     setGroupIndex(next);
     tabRefs.current[next]?.focus();
   }
@@ -129,11 +176,19 @@ export default function PlacePicker({ lat, lon, onSelect }: Props) {
       ArrowRight: groupIndex + 1,
       ArrowLeft: groupIndex - 1,
       Home: 0,
-      End: PLACE_GROUPS.length - 1,
+      End: groups.length - 1,
     };
     if (!(e.key in keys)) return;
     e.preventDefault();
     focusTab(keys[e.key]);
+  }
+
+  function remove(place: Place) {
+    removePlace(place);
+    setAnnouncement(`„${place.name}“ entfernt.`);
+    // Der Button verschwindet mit dem Eintrag; Fokus auf den Reiter setzen,
+    // damit er nicht ins Leere fällt.
+    tabRefs.current[SAVED_INDEX]?.focus();
   }
 
   return (
@@ -147,6 +202,9 @@ export default function PlacePicker({ lat, lon, onSelect }: Props) {
       >
         Beispielorte
       </h2>
+      <p aria-live="polite" className="sr-only">
+        {announcement}
+      </p>
       <div
         role="tablist"
         aria-labelledby={`${id}-heading`}
@@ -154,7 +212,7 @@ export default function PlacePicker({ lat, lon, onSelect }: Props) {
         // Auf schmalen Bildschirmen seitlich scrollen statt umbrechen.
         className={`relative mt-3 flex gap-x-1 overflow-x-auto border-b-4 ${group.colors.line}`}
       >
-        {PLACE_GROUPS.map((g, index) => {
+        {groups.map((g, index) => {
           const selected = index === groupIndex;
           return (
             <button
@@ -189,22 +247,58 @@ export default function PlacePicker({ lat, lon, onSelect }: Props) {
         aria-labelledby={`${id}-tab-${groupIndex}`}
         className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4"
       >
+        {group.removable && group.places.length === 0 && (
+          <p className="col-span-full text-lg text-zinc-700 dark:text-zinc-300">
+            Noch keine Orte gespeichert. Ort suchen oder auswählen und dann „Ort
+            speichern“ neben der Suche drücken. Die Orte bleiben in diesem
+            Browser auch nach dem Neuladen erhalten.
+          </p>
+        )}
         {group.places.map((place) => {
           const active = place.lat === lat && place.lon === lon;
+          const select = () => onSelect(place.lat, place.lon, place.name);
+          if (!group.removable) {
+            return (
+              <button
+                key={place.name}
+                type="button"
+                aria-pressed={active}
+                onClick={select}
+                className={`${PLACE_BUTTON} rounded-lg ${active ? PLACE_ACTIVE : PLACE_INACTIVE}`}
+              >
+                {place.name}
+              </button>
+            );
+          }
           return (
-            <button
-              key={place.name}
-              type="button"
-              aria-pressed={active}
-              onClick={() => onSelect(place.lat, place.lon)}
-              className={`min-h-12 rounded-lg border-2 px-4 py-2 text-left text-lg transition-colors ${
-                active
-                  ? "border-blue-800 bg-blue-800 font-semibold text-white dark:border-blue-300 dark:bg-blue-300 dark:text-black"
-                  : "border-zinc-500 text-black hover:bg-black/[.06] dark:border-zinc-400 dark:text-zinc-50 dark:hover:bg-[#1a1a1a]"
-              }`}
-            >
-              {place.name}
-            </button>
+            <div key={`${place.lat},${place.lon}`} className="flex">
+              <button
+                type="button"
+                aria-pressed={active}
+                onClick={select}
+                className={`${PLACE_BUTTON} min-w-0 flex-1 break-words rounded-l-lg ${active ? PLACE_ACTIVE : PLACE_INACTIVE}`}
+              >
+                {place.name}
+              </button>
+              <button
+                type="button"
+                onClick={() => remove(place)}
+                aria-label={`„${place.name}“ entfernen`}
+                className={`${PLACE_BUTTON} -ml-0.5 shrink-0 rounded-r-lg px-3 ${PLACE_INACTIVE}`}
+              >
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2.5}
+                  strokeLinecap="round"
+                  className="h-5 w-5"
+                >
+                  <path d="M6 6l12 12M18 6L6 18" />
+                </svg>
+              </button>
+            </div>
           );
         })}
       </div>

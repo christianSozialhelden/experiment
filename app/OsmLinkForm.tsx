@@ -6,10 +6,11 @@ import LocationMap from "./LocationMap";
 import MapillaryPhotos from "./MapillaryPhotos";
 import MangroveReviews from "./MangroveReviews";
 import PanoramaxPhotos from "./PanoramaxPhotos";
-import PlacePicker from "./PlacePicker";
+import PlacePicker, { initialGroupIndex, SAVED_INDEX } from "./PlacePicker";
 import PlaceSearch from "./PlaceSearch";
 import PlacePhotos from "./PlacePhotos";
 import SafetyWarnings from "./SafetyWarnings";
+import SavePlaceButton from "./SavePlaceButton";
 import TransitDepartures from "./TransitDepartures";
 import WeatherIcon from "./WeatherIcon";
 import WikidataArticles from "./WikidataArticles";
@@ -55,6 +56,10 @@ type Weather = {
 export default function OsmLinkForm() {
   const [lat, setLat] = useState("52.5200");
   const [lon, setLon] = useState("13.4050");
+  const [placeName, setPlaceName] = useState<string | null>("Berlin");
+  const [groupIndex, setGroupIndex] = useState(() =>
+    initialGroupIndex("52.5200", "13.4050"),
+  );
 
   const latNum = parseFloat(lat.replace(",", "."));
   const lonNum = parseFloat(lon.replace(",", "."));
@@ -114,12 +119,13 @@ export default function OsmLinkForm() {
 
   return (
     <div className="flex w-full flex-col gap-6">
-      <div className="grid items-start gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_12rem_12rem]">
+      <div className="grid items-start gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_10rem_10rem_auto]">
         <div className="sm:col-span-2 lg:col-span-1">
           <PlaceSearch
-            onSelect={(newLat, newLon) => {
+            onSelect={(newLat, newLon, name) => {
               setLat(newLat.toFixed(5));
               setLon(newLon.toFixed(5));
+              setPlaceName(name);
             }}
           />
         </div>
@@ -129,7 +135,10 @@ export default function OsmLinkForm() {
             type="text"
             inputMode="decimal"
             value={lat}
-            onChange={(e) => setLat(e.target.value)}
+            onChange={(e) => {
+              setLat(e.target.value);
+              setPlaceName(null);
+            }}
             placeholder="z. B. 52.5200"
             className="w-full rounded-lg border-2 border-zinc-500 px-4 py-3 text-xl dark:border-zinc-400 dark:bg-black dark:text-zinc-50"
           />
@@ -140,11 +149,28 @@ export default function OsmLinkForm() {
             type="text"
             inputMode="decimal"
             value={lon}
-            onChange={(e) => setLon(e.target.value)}
+            onChange={(e) => {
+              setLon(e.target.value);
+              setPlaceName(null);
+            }}
             placeholder="z. B. 13.4050"
             className="w-full rounded-lg border-2 border-zinc-500 px-4 py-3 text-xl dark:border-zinc-400 dark:bg-black dark:text-zinc-50"
           />
         </label>
+        <div className="flex flex-col gap-2 sm:col-span-2 sm:items-start lg:col-span-1">
+          {/* Platzhalter in Label-Höhe, damit der Button auf einer Linie mit
+              den Eingabefeldern steht. */}
+          <span aria-hidden="true" className="hidden text-lg lg:block">
+            &nbsp;
+          </span>
+          <SavePlaceButton
+            lat={lat}
+            lon={lon}
+            name={placeName}
+            enabled={isValid}
+            onSaved={() => setGroupIndex(SAVED_INDEX)}
+          />
+        </div>
       </div>
       {isValid && (
         <LocationMap
@@ -153,15 +179,19 @@ export default function OsmLinkForm() {
           onMove={(newLat, newLon) => {
             setLat(newLat.toFixed(5));
             setLon(newLon.toFixed(5));
+            setPlaceName(null);
           }}
         />
       )}
       <PlacePicker
         lat={lat}
         lon={lon}
-        onSelect={(newLat, newLon) => {
+        groupIndex={groupIndex}
+        onGroupChange={setGroupIndex}
+        onSelect={(newLat, newLon, name) => {
           setLat(newLat);
           setLon(newLon);
+          setPlaceName(name);
         }}
       />
       <SafetyWarnings enabled={isValid} />
