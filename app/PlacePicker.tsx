@@ -48,10 +48,43 @@ const WORLD_CITIES = [
   { name: "Tokio", lat: "35.6812", lon: "139.7671" },
 ];
 
-const PLACE_GROUPS: { label: string; places: Place[] }[] = [
-  { label: "Sehenswürdigkeiten", places: POIS },
-  { label: "Landeshauptstädte", places: CAPITALS },
-  { label: "Weitere Städte", places: WORLD_CITIES },
+type TabColors = { active: string; inactive: string; line: string };
+
+// Verwandte Blautöne, passend zum Blau der Buttons. Klassen vollständig
+// ausgeschrieben, damit Tailwind sie beim Scannen findet.
+// Weiße Schrift auf den 700er-Tönen und schwarze auf den 300er-Tönen (Dark
+// Mode) erreichen jeweils mindestens 4,5:1 Kontrast.
+const PLACE_GROUPS: { label: string; places: Place[]; colors: TabColors }[] = [
+  {
+    label: "Sehenswürdigkeiten",
+    places: POIS,
+    colors: {
+      active: "bg-sky-700 text-white dark:bg-sky-300 dark:text-black",
+      inactive:
+        "bg-sky-100 text-sky-900 hover:bg-sky-200 dark:bg-sky-950 dark:text-sky-200 dark:hover:bg-sky-900",
+      line: "border-sky-700 dark:border-sky-300",
+    },
+  },
+  {
+    label: "Landeshauptstädte",
+    places: CAPITALS,
+    colors: {
+      active: "bg-blue-700 text-white dark:bg-blue-300 dark:text-black",
+      inactive:
+        "bg-blue-100 text-blue-900 hover:bg-blue-200 dark:bg-blue-950 dark:text-blue-200 dark:hover:bg-blue-900",
+      line: "border-blue-700 dark:border-blue-300",
+    },
+  },
+  {
+    label: "Weitere Städte",
+    places: WORLD_CITIES,
+    colors: {
+      active: "bg-indigo-700 text-white dark:bg-indigo-300 dark:text-black",
+      inactive:
+        "bg-indigo-100 text-indigo-900 hover:bg-indigo-200 dark:bg-indigo-950 dark:text-indigo-200 dark:hover:bg-indigo-900",
+      line: "border-indigo-700 dark:border-indigo-300",
+    },
+  },
 ];
 
 // Reiter nach dem ARIA-Tabs-Muster: Nur der aktive Reiter ist per Tab erreichbar,
@@ -119,7 +152,7 @@ export default function PlacePicker({ lat, lon, onSelect }: Props) {
         aria-labelledby={`${id}-heading`}
         onKeyDown={onKeyDown}
         // Auf schmalen Bildschirmen seitlich scrollen statt umbrechen.
-        className="relative mt-3 flex gap-x-2 overflow-x-auto border-b-2 border-zinc-400 dark:border-zinc-600"
+        className={`relative mt-3 flex gap-x-1 overflow-x-auto border-b-4 ${group.colors.line}`}
       >
         {PLACE_GROUPS.map((g, index) => {
           const selected = index === groupIndex;
@@ -136,14 +169,14 @@ export default function PlacePicker({ lat, lon, onSelect }: Props) {
               aria-controls={`${id}-panel`}
               tabIndex={selected ? 0 : -1}
               onClick={() => setGroupIndex(index)}
-              className={`-mb-0.5 min-h-12 shrink-0 whitespace-nowrap border-b-4 px-3 py-2 text-lg ${
+              className={`min-h-12 shrink-0 whitespace-nowrap rounded-t-lg px-4 py-2 text-lg ${
                 selected
-                  ? "border-blue-800 font-semibold text-blue-800 dark:border-blue-300 dark:text-blue-300"
-                  : "border-transparent text-zinc-700 hover:text-black dark:text-zinc-300 dark:hover:text-zinc-50"
+                  ? `font-semibold ${g.colors.active}`
+                  : g.colors.inactive
               }`}
             >
               {g.label}{" "}
-              <span className="ml-1 text-base font-normal text-zinc-600 dark:text-zinc-400">
+              <span className="ml-1 text-base font-normal opacity-80">
                 {g.places.length}
               </span>
             </button>
