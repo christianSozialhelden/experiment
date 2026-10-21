@@ -213,7 +213,8 @@ export default function PlaceSearch({ onSelect }: Props) {
     status = `${count(searchPlaces.length)}. Bitte einen auswählen.`;
   else if (suggesting && currentSuggestions === null) status = "Sucht …";
   else if (currentSuggestions?.places === null)
-    status = "Vorschläge konnten nicht geladen werden. Mit „Suchen“ trotzdem suchen.";
+    status =
+      "Vorschläge konnten nicht geladen werden. Mit „Suchen“ trotzdem suchen.";
   else if (currentSuggestions?.places.length === 0)
     status = "Keine Vorschläge. „Suchen“ findet auch Adressen.";
   else if (currentSuggestions)
@@ -221,13 +222,50 @@ export default function PlaceSearch({ onSelect }: Props) {
 
   return (
     <div className="flex flex-col gap-2">
-      <form role="search" onSubmit={searchNominatim} className="flex flex-col gap-2">
-        <label
-          htmlFor={`${listId}-input`}
-          className="text-lg font-medium text-black dark:text-zinc-50"
-        >
-          Ort suchen
-        </label>
+      <form
+        role="search"
+        onSubmit={searchNominatim}
+        className="flex flex-col gap-2"
+      >
+        {/* Quellenangabe neben dem Label statt in einer eigenen Zeile, damit
+            die Karte weiter nach oben rückt. */}
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4">
+          <label
+            htmlFor={`${listId}-input`}
+            className="text-lg font-medium text-black dark:text-zinc-50"
+          >
+            Ort suchen
+          </label>
+          <p className="text-sm text-zinc-700 dark:text-zinc-300">
+            Quellen:{" "}
+            <a
+              href="https://de.wikipedia.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline"
+            >
+              Wikipedia
+            </a>
+            ,{" "}
+            <a
+              href="https://nominatim.openstreetmap.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline"
+            >
+              Nominatim
+            </a>
+            ,{" "}
+            <a
+              href="https://www.openstreetmap.org/copyright"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline"
+            >
+              © OpenStreetMap
+            </a>
+          </p>
+        </div>
         <div className="flex flex-wrap gap-3">
           <div className="relative min-w-0 flex-1 basis-64">
             <input
@@ -302,32 +340,13 @@ export default function PlaceSearch({ onSelect }: Props) {
           </button>
         </div>
       </form>
+      {/* Feste Höhe von einer Zeile, damit die Karte darunter nicht springt,
+          wenn eine Meldung erscheint. */}
       <p
         aria-live="polite"
-        className="min-h-7 text-lg text-zinc-700 dark:text-zinc-300"
+        className="min-h-6 text-base text-zinc-700 dark:text-zinc-300"
       >
         {status}
-      </p>
-      <p className="text-sm text-zinc-700 dark:text-zinc-300">
-        Vorschläge:{" "}
-        <a
-          href="https://de.wikipedia.org"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline"
-        >
-          Wikipedia
-        </a>
-        , Suche:{" "}
-        <a
-          href="https://nominatim.openstreetmap.org"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline"
-        >
-          Nominatim
-        </a>
-        , Daten © OpenStreetMap-Mitwirkende
       </p>
     </div>
   );

@@ -98,7 +98,7 @@ export default function LocationMap({ lat, lon, onMove }: Props) {
       ref={containerRef}
       role="region"
       aria-label="Karte von OpenStreetMap. Nadel verschieben oder in die Karte klicken, um den Standort zu ändern."
-      className="location-map z-0 h-96 w-full rounded-lg border-2 border-zinc-500 dark:border-zinc-400"
+      className="location-map z-0 h-[clamp(14rem,calc(100svh-22.5rem),24rem)] w-full rounded-lg border-2 border-zinc-500 dark:border-zinc-400"
     />
   );
 }
