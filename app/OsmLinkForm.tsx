@@ -157,12 +157,38 @@ export default function OsmLinkForm() {
 
   return (
     <div className="flex w-full flex-col gap-6">
-      <PlaceSearch
-        onSelect={(newLat, newLon) => {
-          setLat(newLat.toFixed(5));
-          setLon(newLon.toFixed(5));
-        }}
-      />
+      <div className="grid items-start gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_12rem_12rem]">
+        <div className="sm:col-span-2 lg:col-span-1">
+          <PlaceSearch
+            onSelect={(newLat, newLon) => {
+              setLat(newLat.toFixed(5));
+              setLon(newLon.toFixed(5));
+            }}
+          />
+        </div>
+        <label className="flex flex-col gap-2 text-lg font-medium text-black dark:text-zinc-50">
+          Breitengrad (lat)
+          <input
+            type="text"
+            inputMode="decimal"
+            value={lat}
+            onChange={(e) => setLat(e.target.value)}
+            placeholder="z. B. 52.5200"
+            className="w-full rounded-lg border-2 border-zinc-500 px-4 py-3 text-xl dark:border-zinc-400 dark:bg-black dark:text-zinc-50"
+          />
+        </label>
+        <label className="flex flex-col gap-2 text-lg font-medium text-black dark:text-zinc-50">
+          Längengrad (lon)
+          <input
+            type="text"
+            inputMode="decimal"
+            value={lon}
+            onChange={(e) => setLon(e.target.value)}
+            placeholder="z. B. 13.4050"
+            className="w-full rounded-lg border-2 border-zinc-500 px-4 py-3 text-xl dark:border-zinc-400 dark:bg-black dark:text-zinc-50"
+          />
+        </label>
+      </div>
       {isValid && (
         <LocationMap
           lat={latNum}
@@ -203,30 +229,6 @@ export default function OsmLinkForm() {
           </div>
         </fieldset>
       ))}
-      <div className="flex flex-col gap-6">
-        <label className="flex flex-col gap-2 text-lg font-medium text-black dark:text-zinc-50">
-          Breitengrad (lat)
-          <input
-            type="text"
-            inputMode="decimal"
-            value={lat}
-            onChange={(e) => setLat(e.target.value)}
-            placeholder="z. B. 52.5200"
-            className="rounded-lg border-2 border-zinc-500 px-4 py-3 text-xl dark:border-zinc-400 dark:bg-black dark:text-zinc-50"
-          />
-        </label>
-        <label className="flex flex-col gap-2 text-lg font-medium text-black dark:text-zinc-50">
-          Längengrad (lon)
-          <input
-            type="text"
-            inputMode="decimal"
-            value={lon}
-            onChange={(e) => setLon(e.target.value)}
-            placeholder="z. B. 13.4050"
-            className="rounded-lg border-2 border-zinc-500 px-4 py-3 text-xl dark:border-zinc-400 dark:bg-black dark:text-zinc-50"
-          />
-        </label>
-      </div>
       <SafetyWarnings enabled={isValid} />
       <div className="grid items-start gap-6 md:grid-cols-2 lg:grid-cols-3">
         <div className="flex flex-col gap-6">
