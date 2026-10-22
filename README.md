@@ -15,7 +15,7 @@ Export auf GitHub Pages und hat deshalb keine serverseitigen Routen.
 | [Nominatim](https://nominatim.org) | Ortssuche nach Name oder Adresse beim Absenden | `GET nominatim.openstreetmap.org/search?q=…&format=jsonv2&limit=8&accept-language=de` |
 | [Open-Meteo](https://open-meteo.com) | Aktuelles Wetter | `GET api.open-meteo.com/v1/forecast?latitude=…&longitude=…&current_weather=true` |
 | [Transitous](https://transitous.org) ([MOTIS](https://github.com/motis-project/motis)) | Haltestellen und Abfahrten, deutschlandweit | `GET api.transitous.org/api/v1/map/stops?min=…&max=…` für Haltestellen in einer Bounding-Box, danach `GET …/api/v1/stoptimes?stopId=…&n=…&radius=…` für die Abfahrten |
-| [Wikipedia](https://de.wikipedia.org) (MediaWiki API) | Fotos von Orten in der Umgebung | `GET de.wikipedia.org/w/api.php?action=query&generator=geosearch&ggscoord=…&prop=pageimages` |
+| [Wikipedia](https://de.wikipedia.org) (MediaWiki API) | Fotos von Orten in der Umgebung | `GET de.wikipedia.org/w/api.php?action=query&generator=geosearch&ggscoord=…&prop=pageimages\|coordinates&colimit=max&pithumbsize=1024` |
 | [Wikimedia Commons](https://commons.wikimedia.org) (MediaWiki API) | Urheber und Lizenz zu diesen Fotos | `GET commons.wikimedia.org/w/api.php?action=query&titles=File:…&prop=imageinfo&iiprop=extmetadata` |
 | [Wikidata](https://www.wikidata.org) (MediaWiki API) | Relevante Artikel in der Nähe | `GET www.wikidata.org/w/api.php?action=query&list=geosearch&gscoord=…&gsradius=1000&gslimit=100`, danach `…?action=wbgetentities&ids=…&props=labels\|descriptions\|sitelinks/urls&languages=de&languagefallback=1` in Blöcken zu 50 IDs |
 | [Mangrove](https://open-reviews.net) | Offene Bewertungen im Umkreis | `GET api.mangrove.reviews/reviews?sub={geo-URI}` |
@@ -61,12 +61,23 @@ Hinweise zur Nutzung:
   Bedarf von 1 km über 5 km auf 20 km, damit auch ländliche Gegenden abgedeckt sind.
 - Der Parameter `radius` bei `stoptimes` fasst alle Steige und Nachbarhaltestellen zusammen.
   Dieselbe Fahrt kann darum mehrfach erscheinen — einmal je Haltestelle.
-- **Fotos** kommen aus Wikipedia-Artikeln in der Nähe, nicht aus der Commons-Geosuche: Letztere
+- **Straßenfotos** (`app/StreetPhotos.tsx`) zeigt die Fotos aller Dienste (Wikipedia,
+  Panoramax, Mapillary, KartaView) in einem gemeinsamen Raster, nach Entfernung sortiert. Jeder
+  Dienst hat eine Ladefunktion (`app/wikipediaPhotos.ts`, `app/panoramaxPhotos.ts`,
+  `app/mapillaryPhotos.ts`, `app/kartaViewPhotos.ts`) mit einheitlichem Ergebnis; gesucht wird
+  über `usePhotoSearch` in `app/photoSearch.ts`. Fotos erscheinen, sobald ein Dienst antwortet;
+  Mapillary braucht oft 20 s und mehr. Ein Klick auf ein Vorschaubild zeigt es groß: Mapillary
+  im eingebetteten 360°-Viewer, die anderen als Bild. Die Dienste stehen bewusst nicht in der
+  Überschrift, sondern zugeklappt unter „Quellen und Lizenzen“; Urheber und Lizenz des
+  ausgewählten Fotos stehen unter der Großansicht. Fällt ein Dienst aus, zeigen die anderen
+  weiter Fotos, der Fehler steht in der Quellenliste.
+- **Fotos von Wikipedia** kommen aus Wikipedia-Artikeln in der Nähe, nicht aus der Commons-Geosuche: Letztere
   liefert alles, was zufällig Koordinaten trägt, also auch Massenimporte ohne Ortsbezug.
   Artikelbilder zeigen dagegen tatsächlich den Ort und haben einen lesbaren Titel, der sich als
-  Alt-Text eignet. Radius 1 km, ersatzweise 5 km.
+  Alt-Text eignet. Radius 1 km, ersatzweise 5 km. Die Entfernung kommt aus `prop=coordinates`;
+  ohne `colimit=max` liefert die API Koordinaten nur für die ersten 10 Artikel.
 - Die Bilder stehen unter freien Lizenzen, die meist Namensnennung verlangen. Urheber und Lizenz
-  werden deshalb aus Commons nachgeladen und unter jedem Foto angezeigt — dieser Schritt darf
+  werden deshalb aus Commons nachgeladen und unter der Großansicht angezeigt — dieser Schritt darf
   nicht wegoptimiert werden. Die Felder enthalten HTML und werden vor der Ausgabe in reinen
   Text umgewandelt, niemals per `dangerouslySetInnerHTML` eingebunden.
 - **Amtliche Warnungen (NINA)** waren einmal eingebaut und sind seit der Umstellung auf GitHub
@@ -100,28 +111,29 @@ Hinweise zur Nutzung:
   ist undokumentiert (belegt im Quellcode von `routes/api.ts`), sendet CORS-Header und braucht
   keine Anmeldung; `GET /api/thing` ohne `url`-Parameter antwortet allerdings gar nicht.
   Für eine Reaktivierung müsste man den Ortsnamen serverseitig per Nominatim ermitteln.
-- **KartaView** zeigt die nächstgelegenen Straßenfotos (`app/KartaViewPhotos.tsx`), ohne Token.
+- **KartaView** zeigt die nächstgelegenen Straßenfotos (`app/kartaViewPhotos.ts`), ohne Token.
   Doku: <https://kartaview.org/doc/authentication>. Wichtig: nur mit `zoomLevel` und `orderBy=id&orderDirection=desc` suchen — fehlt die Sortierung, läuft die Abfrage ebenfalls in den Timeout. Die in
   der Doku zuerst gezeigte Suche mit `radius` läuft serverseitig in `408 Query timeout`, auch mit
   Token; `api.kartaview.org` antwortet nicht, nur `api.openstreetcam.org` (Stand 2026-09-29).
   `zoomLevel` liefert das nächste Foto je Sequenz im Umkreis von etwa 200 m; ein kleinerer Wert
   vergrößert den Umkreis nicht. Die Abdeckung ist lückenhaft (Berlin-Mitte ja, Hamburger Rathaus
   nein). Ein Token würde nur das Limit von 100 auf 1.000 Anfragen pro Stunde heben und läge im
-  Browser-Code offen, deshalb keiner. Die Bilder stehen unter CC BY-SA 4.0; der Hinweis unter
-  den Fotos muss bleiben.
-- **Panoramax** (`app/PanoramaxPhotos.tsx`) wird über den Metakatalog `api.panoramax.xyz`
+  Browser-Code offen, deshalb keiner. Das Feld `distance` steht oft auf `0.00`, auch bei Fotos
+  einige Meter weiter; die Entfernung wird deshalb selbst aus `lat`/`lng` berechnet. Die Bilder
+  stehen unter CC BY-SA 4.0; der Hinweis in „Quellen und Lizenzen“ muss bleiben.
+- **Panoramax** (`app/panoramaxPhotos.ts`) wird über den Metakatalog `api.panoramax.xyz`
   abgefragt, der alle föderierten Instanzen (OSM France, IGN, …) durchsucht. Doku:
   <https://docs.panoramax.fr/backend/api/api/>, STAC-API, ohne Token, CORS offen, Antwort in
   unter 0,5 s. Achtung: `place_position` erwartet **Länge vor Breite**. Radius 200 m,
   ersatzweise 1 km. Die Treffer kommen nicht nach Entfernung sortiert und enthalten viele fast
-  gleiche Fotos derselben Sequenz; die Komponente rechnet die Entfernung selbst und behält das
+  gleiche Fotos derselben Sequenz; die Ladefunktion rechnet die Entfernung selbst und behält das
   nächste Foto je Sequenz (`collection`). Bild-URLs liegen auf wechselnden Instanz-Hosts, daher
   `unoptimized` statt `remotePatterns`. Lizenz und Urheber stehen je Foto im Ergebnis
   (`properties.license`, meist CC-BY-SA-4.0 oder etalab-2.0; `providers` mit Rolle `producer`)
-  und werden unter jedem Foto angezeigt. 360° erkennt man an
+  und werden unter der Großansicht angezeigt. 360° erkennt man an
   `pers:interior_orientation.field_of_view = 360`. Stand 2026-09-29 ergänzt Panoramax KartaView
   gut: Hamburg und München haben Treffer, Berlin-Mitte kaum.
-- **Mapillary** (`app/MapillaryPhotos.tsx`) sucht über die Graph API
+- **Mapillary** (`app/mapillaryPhotos.ts`) sucht über die Graph API
   (<https://www.mapillary.com/developer/api-documentation>) Fotos in einer Bounding-Box um den
   Punkt (Größe siehe unten), behält das nächste Foto je Sequenz und zeigt bis zu
   sechs Vorschaubilder. Das nächstgelegene läuft im eingebetteten Viewer
@@ -135,7 +147,8 @@ Hinweise zur Nutzung:
     lesend; er landet beim Build im JavaScript und ist damit öffentlich einsehbar.
   - Lokal steht er in `.env.local` als `NEXT_PUBLIC_MAPILLARY_TOKEN=…` (Dev-Server danach neu
     starten). Für GitHub Pages liest der Workflow das Repository-Secret `MAPILLARY_TOKEN`.
-  - Fehlt der Token, zeigt das Widget eine „Nicht verfügbar“-Karte mit Weblink.
+  - Fehlt der Token, fehlen nur die Mapillary-Fotos; die Quellenliste vermerkt
+    „nicht verfügbar, kein Zugriffstoken hinterlegt“.
   - Die Bounding-Box-Suche ist der heikle Teil: In dichten Gegenden (Berlin-Mitte) antwortet
     die API mit HTTP 500 „Please reduce the amount of data you're asking for“ — schon bei
     200 m Kantenlänge und auch mit `limit=25` und nur leichten Feldern (Stand 2026-09-30).

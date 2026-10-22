@@ -1,28 +1,11 @@
-"use client";
-
-import Image from "next/image";
-import { useEffect, useState } from "react";
-
-type Photo = {
-  pageId: number;
-  title: string;
-  thumbUrl: string;
-  articleUrl: string;
-  author: string;
-  license: string;
-};
-
-type Props = {
-  lat: number;
-  lon: number;
-  enabled: boolean;
-};
+import { distanceInMeters, type StreetPhoto } from "./photoSearch";
 
 type RawArticle = {
   pageid: number;
   title: string;
   thumbnail?: { source: string };
   pageimage?: string;
+  coordinates?: { lat: number; lon: number }[];
 };
 
 function normalizeFileName(name: string) {
@@ -58,7 +41,10 @@ async function fetchCredits(fileNames: string[], signal: AbortSignal) {
   const data = await res.json();
   const pages: Record<
     string,
-    { title: string; imageinfo?: { extmetadata?: Record<string, { value: string }> }[] }
+    {
+      title: string;
+      imageinfo?: { extmetadata?: Record<string, { value: string }> }[];
+    }
   > = data.query?.pages ?? {};
   for (const page of Object.values(pages)) {
     const meta = page.imageinfo?.[0]?.extmetadata ?? {};
@@ -70,127 +56,70 @@ async function fetchCredits(fileNames: string[], signal: AbortSignal) {
   return credits;
 }
 
-export default function PlacePhotos({ lat, lon, enabled }: Props) {
-  const coordKey = `${lat},${lon}`;
-  const [result, setResult] = useState<{
-    key: string;
-    photos: Photo[] | null;
-  } | null>(null);
-  const current = result?.key === coordKey ? result : null;
+// Artikelbilder von Wikipedia-Artikeln in der Nähe, Urheber und Lizenz von Commons.
+export async function fetchWikipediaPhotos(
+  lat: number,
+  lon: number,
+  signal: AbortSignal,
+): Promise<StreetPhoto[]> {
+  let articles: RawArticle[] = [];
+  for (const radius of [1000, 5000]) {
+    const params = new URLSearchParams({
+      action: "query",
+      generator: "geosearch",
+      ggscoord: `${lat}|${lon}`,
+      ggsradius: String(radius),
+      ggslimit: "20",
+      // `coordinates` liefert die Lage des Artikels, daraus die Entfernung fürs Sortieren.
+      // Ohne `colimit` gibt es Koordinaten nur für die ersten 10 Artikel.
+      prop: "pageimages|coordinates",
+      colimit: "max",
+      piprop: "thumbnail|name",
+      // Groß genug für die Großansicht; im Raster wird es verkleinert.
+      pithumbsize: "1024",
+      format: "json",
+      origin: "*",
+    });
+    const res = await fetch(`https://de.wikipedia.org/w/api.php?${params}`, {
+      signal,
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const pages: Record<string, RawArticle> = data.query?.pages ?? {};
+    articles = Object.values(pages).filter((p) => p.thumbnail);
+    if (articles.length > 0) break;
+  }
+  const nearest = articles
+    .map((a) => {
+      const c = a.coordinates?.[0];
+      return {
+        article: a,
+        distance: c ? distanceInMeters(lat, lon, c.lat, c.lon) : 0,
+      };
+    })
+    .sort((a, b) => a.distance - b.distance)
+    .slice(0, 6);
 
-  useEffect(() => {
-    if (!enabled) return;
-
-    const controller = new AbortController();
-    const timer = setTimeout(async () => {
-      try {
-        let articles: RawArticle[] = [];
-        for (const radius of [1000, 5000]) {
-          const params = new URLSearchParams({
-            action: "query",
-            generator: "geosearch",
-            ggscoord: `${lat}|${lon}`,
-            ggsradius: String(radius),
-            ggslimit: "20",
-            prop: "pageimages",
-            piprop: "thumbnail|name",
-            pithumbsize: "400",
-            format: "json",
-            origin: "*",
-          });
-          const res = await fetch(
-            `https://de.wikipedia.org/w/api.php?${params}`,
-            { signal: controller.signal },
-          );
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const data = await res.json();
-          const pages: Record<string, RawArticle> = data.query?.pages ?? {};
-          articles = Object.values(pages).filter((p) => p.thumbnail);
-          if (articles.length > 0) break;
-        }
-        articles = articles.slice(0, 6);
-
-        const credits = await fetchCredits(
-          articles.map((a) => a.pageimage).filter((n): n is string => !!n),
-          controller.signal,
-        );
-
-        setResult({
-          key: coordKey,
-          photos: articles.map((a) => {
-            const credit = a.pageimage
-              ? credits.get(normalizeFileName(a.pageimage))
-              : undefined;
-            return {
-              pageId: a.pageid,
-              title: a.title,
-              thumbUrl: a.thumbnail!.source,
-              articleUrl: `https://de.wikipedia.org/?curid=${a.pageid}`,
-              author: credit?.author ?? "",
-              license: credit?.license ?? "",
-            };
-          }),
-        });
-      } catch {
-        if (controller.signal.aborted) return;
-        setResult({ key: coordKey, photos: null });
-      }
-    }, 400);
-
-    return () => {
-      controller.abort();
-      clearTimeout(timer);
-    };
-  }, [enabled, lat, lon, coordKey]);
-
-  if (!enabled) return null;
-
-  return (
-    <div className="rounded-lg border-2 border-zinc-400 p-4 text-lg dark:border-zinc-600">
-      <h2 className="text-xl font-semibold text-black dark:text-zinc-50">
-        Fotos aus der Umgebung
-      </h2>
-      {current === null ? (
-        <p className="mt-2 text-zinc-700 dark:text-zinc-300">Lädt …</p>
-      ) : current.photos === null ? (
-        <p className="mt-2 text-zinc-700 dark:text-zinc-300">
-          Fotos konnten nicht geladen werden.
-        </p>
-      ) : current.photos.length === 0 ? (
-        <p className="mt-2 text-zinc-700 dark:text-zinc-300">
-          Keine Fotos in der Nähe gefunden.
-        </p>
-      ) : (
-        <ul className="mt-3 grid grid-cols-2 gap-4">
-          {current.photos.map((photo) => (
-            <li key={photo.pageId}>
-              <a href={photo.articleUrl} target="_blank" rel="noopener noreferrer">
-                <Image
-                  src={photo.thumbUrl}
-                  alt={photo.title}
-                  width={400}
-                  height={300}
-                  className="h-32 w-full rounded border-2 border-zinc-400 object-cover dark:border-zinc-600"
-                  unoptimized
-                />
-                <span className="mt-1 block hyphens-auto break-words text-base text-blue-800 underline dark:text-blue-300">
-                  {photo.title}
-                </span>
-              </a>
-              {(photo.author || photo.license) && (
-                <p className="text-sm text-zinc-700 dark:text-zinc-300">
-                  {photo.author}
-                  {photo.author && photo.license && " · "}
-                  {photo.license}
-                </p>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
-      <p className="mt-3 text-sm text-zinc-700 dark:text-zinc-300">
-        Quelle: Wikipedia und Wikimedia Commons
-      </p>
-    </div>
+  const credits = await fetchCredits(
+    nearest.map((n) => n.article.pageimage).filter((n): n is string => !!n),
+    signal,
   );
+
+  return nearest.map(({ article: a, distance }) => {
+    const credit = a.pageimage
+      ? credits.get(normalizeFileName(a.pageimage))
+      : undefined;
+    return {
+      id: `wikipedia:${a.pageid}`,
+      title: a.title,
+      thumbUrl: a.thumbnail!.source,
+      largeUrl: a.thumbnail!.source,
+      linkUrl: `https://de.wikipedia.org/?curid=${a.pageid}`,
+      shotDate: "",
+      distance,
+      author: credit?.author ?? "",
+      license: credit?.license ?? "",
+      is360: false,
+    };
+  });
 }

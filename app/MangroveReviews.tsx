@@ -106,7 +106,8 @@ export default function MangroveReviews({ lat, lon, enabled }: Props) {
           Keine Bewertungen in der Nähe.
         </p>
       ) : (
-        <ul className="mt-3 flex flex-col gap-3">
+        // Volle Breite: Bewertungen in Spalten, damit die Zeilen nicht zu lang werden.
+        <ul className="mt-3 gap-x-8 md:columns-2 xl:columns-3 [&>li]:mb-3 [&>li]:break-inside-avoid">
           {current.reviews.map((review) => (
             <li key={review.signature}>
               <p className="font-semibold text-zinc-800 dark:text-zinc-200">

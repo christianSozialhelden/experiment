@@ -1,16 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import KartaViewPhotos from "./KartaViewPhotos";
 import LocationMap from "./LocationMap";
-import MapillaryPhotos from "./MapillaryPhotos";
 import MangroveReviews from "./MangroveReviews";
-import PanoramaxPhotos from "./PanoramaxPhotos";
 import PlacePicker, { initialGroupIndex, SAVED_INDEX } from "./PlacePicker";
 import PlaceSearch from "./PlaceSearch";
-import PlacePhotos from "./PlacePhotos";
 import SafetyWarnings from "./SafetyWarnings";
 import SavePlaceButton from "./SavePlaceButton";
+import StreetPhotos from "./StreetPhotos";
 import TransitDepartures from "./TransitDepartures";
 import WeatherIcon from "./WeatherIcon";
 import WikidataArticles from "./WikidataArticles";
@@ -195,91 +192,83 @@ export default function OsmLinkForm() {
         }}
       />
       <SafetyWarnings enabled={isValid} />
-      {/* Mauerwerk-Layout über CSS-Spalten: Jedes Kärtchen schließt direkt an das
-          darüber an, statt auf die Zeilenhöhe des höchsten Nachbarn zu warten.
-          Komponenten ohne Inhalt rendern null und hinterlassen keine Lücke. */}
-      <div className="gap-6 md:columns-2 xl:columns-3 [&>*]:mb-6 [&>*]:break-inside-avoid">
-        {isValid && (
-          <div className="rounded-lg border-2 border-zinc-400 p-4 text-lg dark:border-zinc-600">
-            <h2 className="text-xl font-semibold text-black dark:text-zinc-50">
-              Aktuelles Wetter
-            </h2>
-            {current?.weather ? (
-              <div className="mt-2 flex items-center gap-4">
-                <WeatherIcon
-                  code={current.weather.code}
-                  isDay={current.weather.isDay}
-                  className="h-16 w-16 shrink-0 text-blue-800 dark:text-blue-300"
-                />
-                <div className="text-zinc-800 dark:text-zinc-200">
-                  <p className="text-3xl font-semibold">
-                    {current.weather.temperature} °C
-                  </p>
-                  <p>
-                    {WEATHER_CODES[current.weather.code] ??
-                      `Wettercode ${current.weather.code}`}
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <svg
-                      aria-hidden="true"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={1.75}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="h-5 w-5 shrink-0"
-                    >
-                      <path d="M9.6 4.6A2 2 0 1 1 11 8H2m10.6 11.4A2 2 0 1 0 14 16H2m15.7-8.3A2.5 2.5 0 1 1 19.5 12H2" />
-                    </svg>
-                    {current.weather.windSpeed} km/h
-                  </p>
-                </div>
+      {isValid && (
+        <div className="rounded-lg border-2 border-zinc-400 p-4 text-lg dark:border-zinc-600">
+          <h2 className="text-xl font-semibold text-black dark:text-zinc-50">
+            Aktuelles Wetter
+          </h2>
+          {current?.weather ? (
+            <div className="mt-2 flex items-center gap-4">
+              <WeatherIcon
+                code={current.weather.code}
+                isDay={current.weather.isDay}
+                className="h-16 w-16 shrink-0 text-blue-800 dark:text-blue-300"
+              />
+              <div className="text-zinc-800 dark:text-zinc-200">
+                <p className="text-3xl font-semibold">
+                  {current.weather.temperature} °C
+                </p>
+                <p>
+                  {WEATHER_CODES[current.weather.code] ??
+                    `Wettercode ${current.weather.code}`}
+                </p>
+                <p className="flex items-center gap-2">
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={1.75}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-5 w-5 shrink-0"
+                  >
+                    <path d="M9.6 4.6A2 2 0 1 1 11 8H2m10.6 11.4A2 2 0 1 0 14 16H2m15.7-8.3A2.5 2.5 0 1 1 19.5 12H2" />
+                  </svg>
+                  {current.weather.windSpeed} km/h
+                </p>
               </div>
-            ) : current ? (
-              <p className="mt-2 text-zinc-700 dark:text-zinc-300">
-                Wetterdaten konnten nicht geladen werden.
-              </p>
-            ) : (
-              <p className="mt-2 text-zinc-700 dark:text-zinc-300">Lädt …</p>
-            )}
-          </div>
-        )}
-        {osmUrl ? (
-          <a
-            href={osmUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex min-h-12 items-center gap-3 text-xl font-medium text-blue-800 underline decoration-2 underline-offset-4 dark:text-blue-300"
+            </div>
+          ) : current ? (
+            <p className="mt-2 text-zinc-700 dark:text-zinc-300">
+              Wetterdaten konnten nicht geladen werden.
+            </p>
+          ) : (
+            <p className="mt-2 text-zinc-700 dark:text-zinc-300">Lädt …</p>
+          )}
+        </div>
+      )}
+      {osmUrl ? (
+        <a
+          href={osmUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex min-h-12 items-center gap-3 self-start text-xl font-medium text-blue-800 underline decoration-2 underline-offset-4 dark:text-blue-300"
+        >
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-7 w-7 shrink-0"
           >
-            <svg
-              aria-hidden="true"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-7 w-7 shrink-0"
-            >
-              <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z" />
-              <circle cx="12" cy="10" r="3" />
-            </svg>
-            Auf OpenStreetMap öffnen
-          </a>
-        ) : (
-          <p className="text-lg text-zinc-700 dark:text-zinc-300">
-            Bitte gültige Koordinaten eingeben.
-          </p>
-        )}
-        <TransitDepartures lat={latNum} lon={lonNum} enabled={isValid} />
-        <PlacePhotos lat={latNum} lon={lonNum} enabled={isValid} />
-        <MangroveReviews lat={latNum} lon={lonNum} enabled={isValid} />
-        <KartaViewPhotos lat={latNum} lon={lonNum} enabled={isValid} />
-        <PanoramaxPhotos lat={latNum} lon={lonNum} enabled={isValid} />
-      </div>
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+          Auf OpenStreetMap öffnen
+        </a>
+      ) : (
+        <p className="text-lg text-zinc-700 dark:text-zinc-300">
+          Bitte gültige Koordinaten eingeben.
+        </p>
+      )}
+      <StreetPhotos lat={latNum} lon={lonNum} enabled={isValid} />
+      <TransitDepartures lat={latNum} lon={lonNum} enabled={isValid} />
+      <MangroveReviews lat={latNum} lon={lonNum} enabled={isValid} />
       <WikidataArticles lat={latNum} lon={lonNum} enabled={isValid} />
-      <MapillaryPhotos lat={latNum} lon={lonNum} enabled={isValid} />
     </div>
   );
 }
