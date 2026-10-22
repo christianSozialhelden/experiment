@@ -177,9 +177,11 @@ export default function StreetPhotos({ lat, lon, enabled }: Props) {
                       }`}
                       unoptimized
                     />
-                    <span className="mt-1 block text-base text-blue-800 underline dark:text-blue-300">
-                      {Math.round(photo.distance)} m{photo.is360 && " · 360°"}
-                    </span>
+                    {photo.is360 && (
+                      <span className="mt-1 block text-base text-zinc-700 dark:text-zinc-300">
+                        360°
+                      </span>
+                    )}
                   </button>
                 </li>
               );
