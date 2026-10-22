@@ -21,6 +21,34 @@ type Props = {
 const describe = (photo: StreetPhoto) =>
   `${photo.title ?? (photo.is360 ? "360°-Foto" : "Straßenfoto")}, ${Math.round(photo.distance)} m entfernt`;
 
+// Drehender Kreis neben dem Ladehinweis. Bei „Bewegung reduzieren“ steht er still;
+// der Text daneben trägt die Information ohnehin.
+function Spinner() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      className="h-6 w-6 shrink-0 text-blue-800 motion-safe:animate-spin dark:text-blue-300"
+    >
+      <circle
+        cx="12"
+        cy="12"
+        r="9"
+        stroke="currentColor"
+        strokeWidth={3}
+        opacity={0.25}
+      />
+      <path
+        d="M21 12a9 9 0 0 0-9-9"
+        stroke="currentColor"
+        strokeWidth={3}
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 // Fehlerhinweis für die Quellenliste: Fällt ein Dienst aus, zeigen die anderen weiter Fotos.
 function problem(state: PhotoState) {
   return state.status === "error"
@@ -62,13 +90,19 @@ export default function StreetPhotos({ lat, lon, enabled }: Props) {
       <h2 className="text-xl font-semibold text-black dark:text-zinc-50">
         Straßenfotos
       </h2>
-      {photos.length === 0 ? (
+      {photos.length === 0 && loading ? (
+        <p
+          role="status"
+          className="mt-2 flex items-center gap-3 text-zinc-700 dark:text-zinc-300"
+        >
+          <Spinner />
+          Lädt …
+        </p>
+      ) : photos.length === 0 ? (
         <p className="mt-2 text-zinc-700 dark:text-zinc-300">
-          {loading
-            ? "Lädt …"
-            : states.every((s) => s.status === "error")
-              ? "Fotos konnten nicht geladen werden."
-              : "Keine Straßenfotos in der Nähe gefunden."}
+          {states.every((s) => s.status === "error")
+            ? "Fotos konnten nicht geladen werden."
+            : "Keine Straßenfotos in der Nähe gefunden."}
         </p>
       ) : (
         <>
@@ -152,7 +186,11 @@ export default function StreetPhotos({ lat, lon, enabled }: Props) {
             })}
           </ul>
           {loading && (
-            <p className="mt-2 text-base text-zinc-700 dark:text-zinc-300">
+            <p
+              role="status"
+              className="mt-2 flex items-center gap-3 text-base text-zinc-700 dark:text-zinc-300"
+            >
+              <Spinner />
               Weitere Fotos werden geladen …
             </p>
           )}
