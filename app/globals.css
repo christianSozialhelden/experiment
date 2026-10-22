@@ -41,6 +41,37 @@ html {
   font-size: 84%;
 }
 
+/* Hoher Kontrast (Schalter oben rechts): Die Grautöne für Text und Rahmen werden im hellen
+   Modus schwarz, im dunklen weiß. Tailwind liest Farben aus diesen Variablen. */
+html.high-contrast {
+  --color-zinc-400: #000;
+  --color-zinc-500: #000;
+  --color-zinc-600: #000;
+  --color-zinc-700: #000;
+  --color-zinc-800: #000;
+  --color-zinc-900: #000;
+}
+
+html.high-contrast.dark {
+  --color-zinc-100: #fff;
+  --color-zinc-200: #fff;
+  --color-zinc-300: #fff;
+  --color-zinc-400: #fff;
+  --color-zinc-500: #fff;
+  --color-zinc-600: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+  html.high-contrast:not(.light) {
+    --color-zinc-100: #fff;
+    --color-zinc-200: #fff;
+    --color-zinc-300: #fff;
+    --color-zinc-400: #fff;
+    --color-zinc-500: #fff;
+    --color-zinc-600: #fff;
+  }
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

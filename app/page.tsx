@@ -1,5 +1,6 @@
 import OsmLinkForm from "./OsmLinkForm";
 import SozialheldinnenLogo from "./SozialheldinnenLogo";
+import ReadingSettings from "./ReadingSettings";
 import ThemeToggle from "./ThemeToggle";
 
 export default function Home() {
@@ -13,7 +14,10 @@ export default function Home() {
               Geokoordinaten Experiment
             </h1>
           </div>
-          <ThemeToggle />
+          <div className="flex gap-2">
+            <ReadingSettings />
+            <ThemeToggle />
+          </div>
         </header>
         <p className="w-full pb-5 text-lg text-zinc-700 dark:text-zinc-300">
           Was gibt es rund um einen Ort? Wähle einen Ort aus, gib Koordinaten

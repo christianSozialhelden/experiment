@@ -1,12 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import AccessibilityNearby from "./AccessibilityNearby";
+import {
+  aqiLabel,
+  fetchAirQuality,
+  uvLabel,
+  type AirQuality,
+} from "./airQuality";
+import LocateButton from "./LocateButton";
 import LocationMap from "./LocationMap";
 import MangroveReviews from "./MangroveReviews";
 import PlacePicker, { initialGroupIndex, SAVED_INDEX } from "./PlacePicker";
 import PlaceSearch from "./PlaceSearch";
 import SafetyWarnings from "./SafetyWarnings";
 import SavePlaceButton from "./SavePlaceButton";
+import StationElevators from "./StationElevators";
 import StreetPhotos from "./StreetPhotos";
 import TransitDepartures from "./TransitDepartures";
 import WeatherIcon from "./WeatherIcon";
@@ -55,7 +64,51 @@ type Weather = {
     min: number;
     rainChance: number | null;
   }[];
+  // Eigene Abfrage; fällt sie aus, fehlt nur diese Zeile.
+  air: AirQuality | null;
 };
+
+// Symbole für UV, Luft und Pollen im Strichstil des Windsymbols.
+const AIR_ICONS = {
+  uv: (
+    <>
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+    </>
+  ),
+  air: (
+    <>
+      <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 19 2c1 2 2 4.2 2 8 0 5.5-4.8 10-10 10Z" />
+      <path d="M2 21c0-3 1.9-5.4 5.1-6C9.5 14.5 12 13 13 12" />
+    </>
+  ),
+  pollen: (
+    <>
+      <circle cx="12" cy="12" r="2.5" />
+      <circle cx="12" cy="6" r="3" />
+      <circle cx="18" cy="12" r="3" />
+      <circle cx="12" cy="18" r="3" />
+      <circle cx="6" cy="12" r="3" />
+    </>
+  ),
+};
+
+function AirIcon({ kind }: { kind: keyof typeof AIR_ICONS }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-5 w-5 shrink-0 text-blue-800 dark:text-blue-300"
+    >
+      {AIR_ICONS[kind]}
+    </svg>
+  );
+}
 
 // Open-Meteo liefert Tage als "2026-10-23" in Ortszeit; `new Date("…")` würde das als
 // Mitternacht UTC lesen und westlich von Greenwich den Vortag anzeigen.
@@ -101,10 +154,13 @@ export default function OsmLinkForm() {
     const controller = new AbortController();
     const timer = setTimeout(async () => {
       try {
-        const res = await fetch(
-          `https://api.open-meteo.com/v1/forecast?latitude=${latNum}&longitude=${lonNum}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=7`,
-          { signal: controller.signal },
-        );
+        const [res, air] = await Promise.all([
+          fetch(
+            `https://api.open-meteo.com/v1/forecast?latitude=${latNum}&longitude=${lonNum}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=7`,
+            { signal: controller.signal },
+          ),
+          fetchAirQuality(latNum, lonNum, controller.signal).catch(() => null),
+        ]);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         const daily = data.daily;
@@ -126,6 +182,7 @@ export default function OsmLinkForm() {
                 rainChance:
                   daily.precipitation_probability_max?.[i + 1] ?? null,
               })),
+            air,
           },
         });
       } catch {
@@ -186,13 +243,22 @@ export default function OsmLinkForm() {
           <span aria-hidden="true" className="hidden text-lg lg:block">
             &nbsp;
           </span>
-          <SavePlaceButton
-            lat={lat}
-            lon={lon}
-            name={placeName}
-            enabled={isValid}
-            onSaved={() => setGroupIndex(SAVED_INDEX)}
-          />
+          <div className="flex flex-wrap items-start gap-2">
+            <SavePlaceButton
+              lat={lat}
+              lon={lon}
+              name={placeName}
+              enabled={isValid}
+              onSaved={() => setGroupIndex(SAVED_INDEX)}
+            />
+            <LocateButton
+              onLocate={(newLat, newLon) => {
+                setLat(newLat.toFixed(5));
+                setLon(newLon.toFixed(5));
+                setPlaceName(null);
+              }}
+            />
+          </div>
         </div>
       </div>
       {isValid && (
@@ -224,89 +290,132 @@ export default function OsmLinkForm() {
             Wetter
           </h2>
           {current?.weather ? (
-            // Immer eine Zeile: Reicht die Breite nicht (Handy), lässt sie sich seitlich
-            // wischen; der ausgeblendete rechte Rand zeigt, dass noch mehr kommt.
-            // tabIndex, damit das auch per Tastatur geht.
-            <div
-              tabIndex={0}
-              className="mt-2 flex items-center gap-6 overflow-x-auto pb-2 max-md:[mask-image:linear-gradient(to_right,black_85%,transparent)]"
-            >
-              <div className="flex shrink-0 items-center gap-4">
-                <WeatherIcon
-                  code={current.weather.code}
-                  isDay={current.weather.isDay}
-                  className="h-16 w-16 shrink-0 text-blue-800 dark:text-blue-300"
-                />
-                <div className="text-zinc-800 dark:text-zinc-200">
-                  <p className="text-3xl font-semibold">
-                    {current.weather.temperature} °C
-                  </p>
-                  <p>
-                    {WEATHER_CODES[current.weather.code] ??
-                      `Wettercode ${current.weather.code}`}
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <svg
-                      aria-hidden="true"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={1.75}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="h-5 w-5 shrink-0"
-                    >
-                      <path d="M9.6 4.6A2 2 0 1 1 11 8H2m10.6 11.4A2 2 0 1 0 14 16H2m15.7-8.3A2.5 2.5 0 1 1 19.5 12H2" />
-                    </svg>
-                    {current.weather.windSpeed} km/h
-                  </p>
+            <>
+              {/* Immer eine Zeile: Reicht die Breite nicht (Handy), lässt sie sich seitlich
+                wischen; der ausgeblendete rechte Rand zeigt, dass noch mehr kommt.
+                tabIndex, damit das auch per Tastatur geht. */}
+              <div
+                tabIndex={0}
+                className="mt-2 flex items-center gap-6 overflow-x-auto pb-2 max-md:[mask-image:linear-gradient(to_right,black_85%,transparent)]"
+              >
+                <div className="flex shrink-0 items-center gap-4">
+                  <WeatherIcon
+                    code={current.weather.code}
+                    isDay={current.weather.isDay}
+                    className="h-16 w-16 shrink-0 text-blue-800 dark:text-blue-300"
+                  />
+                  <div className="text-zinc-800 dark:text-zinc-200">
+                    <p className="text-3xl font-semibold">
+                      {current.weather.temperature} °C
+                    </p>
+                    <p>
+                      {WEATHER_CODES[current.weather.code] ??
+                        `Wettercode ${current.weather.code}`}
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <svg
+                        aria-hidden="true"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={1.75}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="h-5 w-5 shrink-0"
+                      >
+                        <path d="M9.6 4.6A2 2 0 1 1 11 8H2m10.6 11.4A2 2 0 1 0 14 16H2m15.7-8.3A2.5 2.5 0 1 1 19.5 12H2" />
+                      </svg>
+                      {current.weather.windSpeed} km/h
+                    </p>
+                  </div>
                 </div>
-              </div>
-              {current.weather.days.length > 0 && (
-                <ul
-                  aria-label="Vorhersage für die nächsten Tage"
-                  className="flex flex-1 gap-4"
-                >
-                  {current.weather.days.map((day) => (
-                    <li
-                      key={day.date.toISOString()}
-                      className="flex min-w-20 flex-1 flex-col items-center text-center text-zinc-800 dark:text-zinc-200"
-                    >
-                      <p className="font-semibold">
-                        {day.date.toLocaleDateString("de-DE", {
-                          weekday: "short",
-                        })}
-                        <span className="block text-sm font-normal text-zinc-700 dark:text-zinc-300">
+                {current.weather.days.length > 0 && (
+                  <ul
+                    aria-label="Vorhersage für die nächsten Tage"
+                    className="flex flex-1 gap-4"
+                  >
+                    {current.weather.days.map((day) => (
+                      <li
+                        key={day.date.toISOString()}
+                        className="flex min-w-20 flex-1 flex-col items-center text-center text-zinc-800 dark:text-zinc-200"
+                      >
+                        <p className="font-semibold">
                           {day.date.toLocaleDateString("de-DE", {
-                            day: "numeric",
-                            month: "numeric",
+                            weekday: "short",
                           })}
-                        </span>
-                      </p>
-                      <WeatherIcon
-                        code={day.code}
-                        isDay
-                        className="my-1 h-10 w-10 text-blue-800 dark:text-blue-300"
-                      />
-                      <p className="text-base">
-                        {WEATHER_CODES[day.code] ?? `Wettercode ${day.code}`}
-                      </p>
-                      <p className="tabular-nums">
-                        <span className="font-semibold">{day.max}°</span>{" "}
-                        <span className="text-zinc-700 dark:text-zinc-300">
-                          / {day.min}°
-                        </span>
-                      </p>
-                      {day.rainChance !== null && (
-                        <p className="whitespace-nowrap text-sm text-zinc-700 dark:text-zinc-300">
-                          Regen {day.rainChance} %
+                          <span className="block text-sm font-normal text-zinc-700 dark:text-zinc-300">
+                            {day.date.toLocaleDateString("de-DE", {
+                              day: "numeric",
+                              month: "numeric",
+                            })}
+                          </span>
                         </p>
-                      )}
-                    </li>
-                  ))}
-                </ul>
+                        <WeatherIcon
+                          code={day.code}
+                          isDay
+                          className="my-1 h-10 w-10 text-blue-800 dark:text-blue-300"
+                        />
+                        <p className="text-base">
+                          {WEATHER_CODES[day.code] ?? `Wettercode ${day.code}`}
+                        </p>
+                        <p className="tabular-nums">
+                          <span className="font-semibold">{day.max}°</span>{" "}
+                          <span className="text-zinc-700 dark:text-zinc-300">
+                            / {day.min}°
+                          </span>
+                        </p>
+                        {day.rainChance !== null && (
+                          <p className="whitespace-nowrap text-sm text-zinc-700 dark:text-zinc-300">
+                            Regen {day.rainChance} %
+                          </p>
+                        )}
+                        {/* Glätte und Hitze sind für Rollstuhl, Rollator und
+                          Kreislauf die wichtigsten Wetterrisiken. */}
+                        {day.min <= 1 && (
+                          <p className="mt-1 whitespace-nowrap rounded bg-blue-100 px-1.5 text-sm font-medium text-blue-900 dark:bg-blue-950 dark:text-blue-200">
+                            Glätte möglich
+                          </p>
+                        )}
+                        {day.max >= 30 && (
+                          <p className="mt-1 whitespace-nowrap rounded bg-red-100 px-1.5 text-sm font-medium text-red-900 dark:bg-red-950 dark:text-red-200">
+                            Hitze
+                          </p>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              {current.weather.air && (
+                <p className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-base text-zinc-800 dark:text-zinc-200">
+                  {current.weather.air.uv !== null && (
+                    <span className="flex items-center gap-2">
+                      <AirIcon kind="uv" />
+                      UV-Index {Math.round(current.weather.air.uv)} –{" "}
+                      {uvLabel(current.weather.air.uv)}
+                    </span>
+                  )}
+                  {current.weather.air.aqi !== null && (
+                    <span className="flex items-center gap-2">
+                      <AirIcon kind="air" />
+                      Luftqualität {aqiLabel(current.weather.air.aqi)} (
+                      {current.weather.air.aqi})
+                    </span>
+                  )}
+                  {current.weather.air.pollen && (
+                    <span className="flex items-center gap-2">
+                      <AirIcon kind="pollen" />
+                      Pollen:{" "}
+                      {current.weather.air.pollen.length === 0
+                        ? "keine Belastung"
+                        : current.weather.air.pollen
+                            .map((p) => `${p.name} ${p.level}`)
+                            .join(", ")}
+                    </span>
+                  )}
+                </p>
               )}
-            </div>
+            </>
           ) : current ? (
             <p className="mt-2 text-zinc-700 dark:text-zinc-300">
               Wetterdaten konnten nicht geladen werden.
@@ -343,8 +452,10 @@ export default function OsmLinkForm() {
           Bitte gültige Koordinaten eingeben.
         </p>
       )}
+      <AccessibilityNearby lat={latNum} lon={lonNum} enabled={isValid} />
       <StreetPhotos lat={latNum} lon={lonNum} enabled={isValid} />
       <TransitDepartures lat={latNum} lon={lonNum} enabled={isValid} />
+      <StationElevators lat={latNum} lon={lonNum} enabled={isValid} />
       <WikidataArticles lat={latNum} lon={lonNum} enabled={isValid} />
       <MangroveReviews lat={latNum} lon={lonNum} enabled={isValid} />
     </div>

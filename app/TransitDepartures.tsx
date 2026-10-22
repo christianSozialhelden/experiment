@@ -16,6 +16,27 @@ const MODE_LABELS: Record<string, string> = {
   FERRY: "Fähre",
 };
 
+// Rollstuhl-Symbol für die Angabe hinter der Haltestelle; die Bedeutung steht als
+// Text daneben.
+function WheelchairIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="inline h-4 w-4 align-[-2px]"
+    >
+      <circle cx="11" cy="4" r="1.6" />
+      <path d="M11 7v6h5l2 5M11 10h4" />
+      <path d="M8.5 11.5a5 5 0 1 0 7 6" />
+    </svg>
+  );
+}
+
 type Departure = {
   id: string;
   line: string;
@@ -27,6 +48,8 @@ type Departure = {
   departure: string;
   scheduledDeparture: string;
   cancelled: boolean;
+  // Aus GTFS `wheelchair_accessible` der Fahrt; null, wenn unbekannt.
+  wheelchair: boolean | null;
 };
 
 type Props = {
@@ -46,6 +69,7 @@ type RawStopTime = {
   routeColor?: string;
   routeTextColor?: string;
   cancelled: boolean;
+  wheelchairAccessible?: string;
   place: {
     name: string;
     stopId: string;
@@ -143,6 +167,12 @@ export default function TransitDepartures({ lat, lon, enabled }: Props) {
               departure: s.place.departure,
               scheduledDeparture: s.place.scheduledDeparture,
               cancelled: s.cancelled,
+              wheelchair:
+                s.wheelchairAccessible === "ACCESSIBLE"
+                  ? true
+                  : s.wheelchairAccessible === "NOT_ACCESSIBLE"
+                    ? false
+                    : null,
             })),
         });
       } catch {
@@ -204,6 +234,18 @@ export default function TransitDepartures({ lat, lon, enabled }: Props) {
                   {d.headsign}
                   <span className="block text-base text-zinc-700 dark:text-zinc-300">
                     {MODE_LABELS[d.mode] ?? d.mode} · {d.stopName}
+                    {d.wheelchair === true && (
+                      <span className="text-green-800 dark:text-green-300">
+                        {" "}
+                        · <WheelchairIcon /> stufenlos
+                      </span>
+                    )}
+                    {d.wheelchair === false && (
+                      <span className="font-semibold text-red-700 dark:text-red-300">
+                        {" "}
+                        · <WheelchairIcon /> nicht stufenlos
+                      </span>
+                    )}
                   </span>
                 </span>
                 <span className="whitespace-nowrap tabular-nums text-zinc-800 dark:text-zinc-200">

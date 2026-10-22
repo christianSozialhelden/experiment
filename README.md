@@ -2,8 +2,8 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Verwendete APIs
 
-Alle Dienste sind frei nutzbar. Einzige Ausnahme ist Mapillary: Es braucht einen kostenlosen
-Client-Token (siehe unten); alle anderen kommen ohne API-Schlüssel aus.
+Alle Dienste sind frei nutzbar. Ausnahmen sind Mapillary und die DB-Aufzugsdaten (FaSta): Sie
+brauchen kostenlose Zugangsdaten (siehe unten); alle anderen kommen ohne API-Schlüssel aus.
 Alle werden direkt aus dem Browser aufgerufen (CORS erlaubt). Die Seite läuft als statischer
 Export auf GitHub Pages und hat deshalb keine serverseitigen Routen.
 
@@ -14,7 +14,10 @@ Export auf GitHub Pages und hat deshalb keine serverseitigen Routen.
 | [Wikipedia](https://de.wikipedia.org) (MediaWiki API) | Vorschläge in der Ortssuche beim Tippen | `GET de.wikipedia.org/w/api.php?action=query&generator=prefixsearch&gpssearch=…&gpslimit=20&prop=coordinates\|description&redirects=1` |
 | [Nominatim](https://nominatim.org) | Ortssuche nach Name oder Adresse beim Absenden | `GET nominatim.openstreetmap.org/search?q=…&format=jsonv2&limit=8&accept-language=de` |
 | [Open-Meteo](https://open-meteo.com) | Aktuelles Wetter und Vorhersage für 6 Tage | `GET api.open-meteo.com/v1/forecast?latitude=…&longitude=…&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=7` |
-| [Transitous](https://transitous.org) ([MOTIS](https://github.com/motis-project/motis)) | Haltestellen und Abfahrten, deutschlandweit | `GET api.transitous.org/api/v1/map/stops?min=…&max=…` für Haltestellen in einer Bounding-Box, danach `GET …/api/v1/stoptimes?stopId=…&n=…&radius=…` für die Abfahrten |
+| [Open-Meteo](https://open-meteo.com) Air Quality | UV-Index, Luftqualität (EAQI) und Pollen | `GET air-quality-api.open-meteo.com/v1/air-quality?latitude=…&longitude=…&current=european_aqi,uv_index,alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen&timezone=auto` |
+| [Overpass API](https://overpass-api.de) (OpenStreetMap) | Rollstuhlgerechte Orte, Toiletten und Defibrillatoren in der Nähe | `POST overpass-api.de/api/interpreter` mit `data=[out:json];(nwr(around:…)["wheelchair"]["name"][~"^(amenity\|shop\|tourism\|leisure\|healthcare)$"~"."];nwr(around:…)["amenity"="toilets"];nwr(around:…)["emergency"="defibrillator"];);out center tags qt;`, ersatzweise `overpass.private.coffee` |
+| [DB FaSta](https://developers.deutschebahn.com/db-api-marketplace/apis/product/fasta) | Funktionieren die Aufzüge an DB-Bahnhöfen? | `GET apis.deutschebahn.com/db-api-marketplace/apis/fasta/v2/facilities?type=ELEVATOR&area=lon1,lat1,lon2,lat2`, danach `GET …/stations/{stationnumber}` für den Namen; Header `DB-Client-Id` und `DB-Api-Key` |
+| [Transitous](https://transitous.org) ([MOTIS](https://github.com/motis-project/motis)) | Haltestellen und Abfahrten, deutschlandweit, mit Rollstuhl-Angabe je Fahrt | `GET api.transitous.org/api/v1/map/stops?min=…&max=…` für Haltestellen in einer Bounding-Box, danach `GET …/api/v1/stoptimes?stopId=…&n=…&radius=…` für die Abfahrten |
 | [Wikipedia](https://de.wikipedia.org) (MediaWiki API) | Fotos von Orten in der Umgebung | `GET de.wikipedia.org/w/api.php?action=query&generator=geosearch&ggscoord=…&prop=pageimages\|coordinates&colimit=max&pithumbsize=1024` |
 | [Wikimedia Commons](https://commons.wikimedia.org) (MediaWiki API) | Urheber und Lizenz zu diesen Fotos | `GET commons.wikimedia.org/w/api.php?action=query&titles=File:…&prop=imageinfo&iiprop=extmetadata` |
 | [Wikidata](https://www.wikidata.org) (MediaWiki API) | Relevante Artikel in der Nähe | `GET www.wikidata.org/w/api.php?action=query&list=geosearch&gscoord=…&gsradius=1000&gslimit=100`, danach `…?action=wbgetentities&ids=…&props=labels\|descriptions\|sitelinks/urls&languages=de&languagefallback=1` in Blöcken zu 50 IDs |
@@ -60,6 +63,37 @@ Hinweise zur Nutzung:
   Tage kommen als `2026-10-23` und werden als Ortsdatum gelesen, nicht per `new Date("…")`
   (das wäre Mitternacht UTC und westlich von Greenwich der Vortag). Der erste Tag ist heute und
   wird ausgelassen, weil das aktuelle Wetter schon darüber steht.
+- **Luftqualität** (`app/airQuality.ts`) läuft parallel zur Wetterabfrage; fällt sie aus,
+  fehlt nur die Zeile mit UV, Luft und Pollen. Pollen gibt es nur für Europa (CAMS), sonst
+  sind die Werte `null` und die Angabe entfällt. Einstufungen: EAQI nach EEA, UV nach WHO,
+  Pollen grob nach DWD-Stufen (unter 10 gering, unter 50 mäßig, sonst stark). Bei den Tagen
+  der Vorhersage steht „Glätte möglich“ ab Tiefstwert 1 °C und „Hitze“ ab Höchstwert 30 °C.
+- **Barrierefreiheit in der Nähe** (`app/AccessibilityNearby.tsx`) fragt Overpass einmal für
+  alles ab: Orte mit `wheelchair` im Umkreis von 400 m (nur bekannte Ortsarten und Geschäfte,
+  sonst landen Wartehäuschen und Bänke darin), Toiletten und Defibrillatoren im Umkreis von
+  1 km. Overpass ist launisch: mal 502/504 sofort, mal 30 s Antwortzeit, und nur zwei
+  gleichzeitige Abfragen je Nutzer. Deshalb 800 ms Verzögerung (abgebrochene Abfragen laufen
+  auf dem Server weiter) und ein zweiter Server als Ersatz. Ohne Browser-Header (`Origin`,
+  `Referer`) antwortet overpass-api.de mit 406, im Browser ist das kein Problem. Der Link
+  „Auf Wheelmap ergänzen“ zeigt auf die Kartenposition, weil Wheelmap curl aussperrt und das
+  Format für Links auf einzelne Orte nicht geprüft werden konnte. Stabiler und schneller wäre
+  [accessibility.cloud](https://www.accessibility.cloud) von Sozialhelden, braucht aber einen
+  App-Token.
+- **Aufzüge an Bahnhöfen** (`app/StationElevators.tsx`) nutzt DB FaSta, nur DB-Bahnhöfe, keine
+  U-Bahn. Zugangsdaten: Konto im [DB API Marketplace](https://developers.deutschebahn.com),
+  Anwendung anlegen, API „FaSta – Station Facilities Status“ abonnieren (kostenloser Plan).
+  Lokal in `.env.local` als `NEXT_PUBLIC_DB_CLIENT_ID=…` und `NEXT_PUBLIC_DB_API_KEY=…`, für
+  GitHub Pages als Repository-Secrets `DB_CLIENT_ID` und `DB_API_KEY`. Wie beim
+  Mapillary-Token landen sie im JavaScript und sind öffentlich einsehbar. CORS erlaubt die
+  GitHub-Pages-Adresse (Stand 2026-10-22). Ohne Zugangsdaten zeigt das Kästchen „Nicht
+  verfügbar“. Achtung: Mit echten Zugangsdaten noch nicht getestet.
+- **Abfahrten** zeigen `wheelchairAccessible` der Fahrt (`ACCESSIBLE`/`NOT_ACCESSIBLE`, aus
+  GTFS). In Berlin ist praktisch alles `ACCESSIBLE`; unbekannt wird nicht angezeigt.
+- **Mein Standort**, **Schriftgröße** und **Hoher Kontrast** laufen ganz im Browser. Die
+  Schriftgröße setzt `font-size` auf `<html>` (84 % × 1 / 1,25 / 1,5); der Kontrastmodus
+  überschreibt in `app/globals.css` die Tailwind-Farbvariablen `--color-zinc-*`, sodass graue
+  Texte und Rahmen schwarz bzw. im Dark Mode weiß werden. Beides wird in `localStorage`
+  gespeichert.
 - **Transitous** wird in zwei Schritten abgefragt, weil `reverse-geocode` nur Orte und POIs
   kennt und an vielen Stellen gar keine Haltestelle zurückgibt. Die Bounding-Box wächst bei
   Bedarf von 1 km über 5 km auf 20 km, damit auch ländliche Gegenden abgedeckt sind.
