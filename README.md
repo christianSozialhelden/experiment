@@ -70,8 +70,11 @@ Hinweise zur Nutzung:
   Dienst hat eine Ladefunktion (`app/wikipediaPhotos.ts`, `app/panoramaxPhotos.ts`,
   `app/mapillaryPhotos.ts`, `app/kartaViewPhotos.ts`) mit einheitlichem Ergebnis; gesucht wird
   über `usePhotoSearch` in `app/photoSearch.ts`. Fotos erscheinen, sobald ein Dienst antwortet;
-  Mapillary braucht oft 20 s und mehr. Ein Klick auf ein Vorschaubild zeigt es groß: Mapillary
-  im eingebetteten 360°-Viewer, die anderen als Bild. Die Dienste stehen bewusst nicht in der
+  Mapillary braucht oft 20 s und mehr. Die Großansicht ist ein Slider: eine Scroll-Leiste mit
+  `scroll-snap` (Wischen auf Touch und Trackpad), dazu Pfeil-Knöpfe, Pfeiltasten und die
+  Vorschaubilder. Mapillary läuft im eingebetteten 360°-Viewer, der nur für das sichtbare Foto
+  geladen wird, die anderen als Bild vor einer weichgezeichneten Kopie des Vorschaubilds.
+  Treffen Fotos später ein, springt die Leiste ohne Animation auf das gewählte Foto zurück. Die Dienste stehen bewusst nicht in der
   Überschrift, sondern zugeklappt unter „Quellen und Lizenzen“; Urheber und Lizenz des
   ausgewählten Fotos stehen unter der Großansicht. Fällt ein Dienst aus, zeigen die anderen
   weiter Fotos, der Fehler steht in der Quellenliste.
