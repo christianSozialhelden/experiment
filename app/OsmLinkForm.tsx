@@ -48,7 +48,21 @@ type Weather = {
   windSpeed: number;
   code: number;
   isDay: boolean;
+  days: {
+    date: Date;
+    code: number;
+    max: number;
+    min: number;
+    rainChance: number | null;
+  }[];
 };
+
+// Open-Meteo liefert Tage als "2026-10-23" in Ortszeit; `new Date("…")` würde das als
+// Mitternacht UTC lesen und westlich von Greenwich den Vortag anzeigen.
+function parseDay(day: string) {
+  const [y, m, d] = day.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
 
 export default function OsmLinkForm() {
   const [lat, setLat] = useState("52.5200");
@@ -88,11 +102,12 @@ export default function OsmLinkForm() {
     const timer = setTimeout(async () => {
       try {
         const res = await fetch(
-          `https://api.open-meteo.com/v1/forecast?latitude=${latNum}&longitude=${lonNum}&current_weather=true`,
+          `https://api.open-meteo.com/v1/forecast?latitude=${latNum}&longitude=${lonNum}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=7`,
           { signal: controller.signal },
         );
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
+        const daily = data.daily;
         setResult({
           key: coordKey,
           weather: {
@@ -100,6 +115,17 @@ export default function OsmLinkForm() {
             windSpeed: data.current_weather.windspeed,
             code: data.current_weather.weathercode,
             isDay: data.current_weather.is_day === 1,
+            // Ab morgen; heute steht schon als aktuelles Wetter da.
+            days: (daily?.time ?? [])
+              .slice(1)
+              .map((day: string, i: number) => ({
+                date: parseDay(day),
+                code: daily.weathercode[i + 1],
+                max: Math.round(daily.temperature_2m_max[i + 1]),
+                min: Math.round(daily.temperature_2m_min[i + 1]),
+                rainChance:
+                  daily.precipitation_probability_max?.[i + 1] ?? null,
+              })),
           },
         });
       } catch {
@@ -195,39 +221,91 @@ export default function OsmLinkForm() {
       {isValid && (
         <div className="rounded-lg border-2 border-zinc-400 p-4 text-lg dark:border-zinc-600">
           <h2 className="text-xl font-semibold text-black dark:text-zinc-50">
-            Aktuelles Wetter
+            Wetter
           </h2>
           {current?.weather ? (
-            <div className="mt-2 flex items-center gap-4">
-              <WeatherIcon
-                code={current.weather.code}
-                isDay={current.weather.isDay}
-                className="h-16 w-16 shrink-0 text-blue-800 dark:text-blue-300"
-              />
-              <div className="text-zinc-800 dark:text-zinc-200">
-                <p className="text-3xl font-semibold">
-                  {current.weather.temperature} °C
-                </p>
-                <p>
-                  {WEATHER_CODES[current.weather.code] ??
-                    `Wettercode ${current.weather.code}`}
-                </p>
-                <p className="flex items-center gap-2">
-                  <svg
-                    aria-hidden="true"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={1.75}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-5 w-5 shrink-0"
-                  >
-                    <path d="M9.6 4.6A2 2 0 1 1 11 8H2m10.6 11.4A2 2 0 1 0 14 16H2m15.7-8.3A2.5 2.5 0 1 1 19.5 12H2" />
-                  </svg>
-                  {current.weather.windSpeed} km/h
-                </p>
+            // Immer eine Zeile: Reicht die Breite nicht (Handy), lässt sie sich seitlich
+            // wischen; der ausgeblendete rechte Rand zeigt, dass noch mehr kommt.
+            // tabIndex, damit das auch per Tastatur geht.
+            <div
+              tabIndex={0}
+              className="mt-2 flex items-center gap-6 overflow-x-auto pb-2 max-md:[mask-image:linear-gradient(to_right,black_85%,transparent)]"
+            >
+              <div className="flex shrink-0 items-center gap-4">
+                <WeatherIcon
+                  code={current.weather.code}
+                  isDay={current.weather.isDay}
+                  className="h-16 w-16 shrink-0 text-blue-800 dark:text-blue-300"
+                />
+                <div className="text-zinc-800 dark:text-zinc-200">
+                  <p className="text-3xl font-semibold">
+                    {current.weather.temperature} °C
+                  </p>
+                  <p>
+                    {WEATHER_CODES[current.weather.code] ??
+                      `Wettercode ${current.weather.code}`}
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <svg
+                      aria-hidden="true"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={1.75}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="h-5 w-5 shrink-0"
+                    >
+                      <path d="M9.6 4.6A2 2 0 1 1 11 8H2m10.6 11.4A2 2 0 1 0 14 16H2m15.7-8.3A2.5 2.5 0 1 1 19.5 12H2" />
+                    </svg>
+                    {current.weather.windSpeed} km/h
+                  </p>
+                </div>
               </div>
+              {current.weather.days.length > 0 && (
+                <ul
+                  aria-label="Vorhersage für die nächsten Tage"
+                  className="flex flex-1 gap-4"
+                >
+                  {current.weather.days.map((day) => (
+                    <li
+                      key={day.date.toISOString()}
+                      className="flex min-w-20 flex-1 flex-col items-center text-center text-zinc-800 dark:text-zinc-200"
+                    >
+                      <p className="font-semibold">
+                        {day.date.toLocaleDateString("de-DE", {
+                          weekday: "short",
+                        })}
+                        <span className="block text-sm font-normal text-zinc-700 dark:text-zinc-300">
+                          {day.date.toLocaleDateString("de-DE", {
+                            day: "numeric",
+                            month: "numeric",
+                          })}
+                        </span>
+                      </p>
+                      <WeatherIcon
+                        code={day.code}
+                        isDay
+                        className="my-1 h-10 w-10 text-blue-800 dark:text-blue-300"
+                      />
+                      <p className="text-base">
+                        {WEATHER_CODES[day.code] ?? `Wettercode ${day.code}`}
+                      </p>
+                      <p className="tabular-nums">
+                        <span className="font-semibold">{day.max}°</span>{" "}
+                        <span className="text-zinc-700 dark:text-zinc-300">
+                          / {day.min}°
+                        </span>
+                      </p>
+                      {day.rainChance !== null && (
+                        <p className="whitespace-nowrap text-sm text-zinc-700 dark:text-zinc-300">
+                          Regen {day.rainChance} %
+                        </p>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           ) : current ? (
             <p className="mt-2 text-zinc-700 dark:text-zinc-300">
@@ -267,8 +345,8 @@ export default function OsmLinkForm() {
       )}
       <StreetPhotos lat={latNum} lon={lonNum} enabled={isValid} />
       <TransitDepartures lat={latNum} lon={lonNum} enabled={isValid} />
-      <MangroveReviews lat={latNum} lon={lonNum} enabled={isValid} />
       <WikidataArticles lat={latNum} lon={lonNum} enabled={isValid} />
+      <MangroveReviews lat={latNum} lon={lonNum} enabled={isValid} />
     </div>
   );
 }

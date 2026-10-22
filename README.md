@@ -13,7 +13,7 @@ Export auf GitHub Pages und hat deshalb keine serverseitigen Routen.
 | [OpenStreetMap](https://www.openstreetmap.org) | Ersatzkarte ohne WebGL und Link zum Standort | Kacheln von `tile.openstreetmap.org/{z}/{x}/{y}.png` in Leaflet, plus `?mlat=…&mlon=…` als Weblink |
 | [Wikipedia](https://de.wikipedia.org) (MediaWiki API) | Vorschläge in der Ortssuche beim Tippen | `GET de.wikipedia.org/w/api.php?action=query&generator=prefixsearch&gpssearch=…&gpslimit=20&prop=coordinates\|description&redirects=1` |
 | [Nominatim](https://nominatim.org) | Ortssuche nach Name oder Adresse beim Absenden | `GET nominatim.openstreetmap.org/search?q=…&format=jsonv2&limit=8&accept-language=de` |
-| [Open-Meteo](https://open-meteo.com) | Aktuelles Wetter | `GET api.open-meteo.com/v1/forecast?latitude=…&longitude=…&current_weather=true` |
+| [Open-Meteo](https://open-meteo.com) | Aktuelles Wetter und Vorhersage für 6 Tage | `GET api.open-meteo.com/v1/forecast?latitude=…&longitude=…&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=7` |
 | [Transitous](https://transitous.org) ([MOTIS](https://github.com/motis-project/motis)) | Haltestellen und Abfahrten, deutschlandweit | `GET api.transitous.org/api/v1/map/stops?min=…&max=…` für Haltestellen in einer Bounding-Box, danach `GET …/api/v1/stoptimes?stopId=…&n=…&radius=…` für die Abfahrten |
 | [Wikipedia](https://de.wikipedia.org) (MediaWiki API) | Fotos von Orten in der Umgebung | `GET de.wikipedia.org/w/api.php?action=query&generator=geosearch&ggscoord=…&prop=pageimages\|coordinates&colimit=max&pithumbsize=1024` |
 | [Wikimedia Commons](https://commons.wikimedia.org) (MediaWiki API) | Urheber und Lizenz zu diesen Fotos | `GET commons.wikimedia.org/w/api.php?action=query&titles=File:…&prop=imageinfo&iiprop=extmetadata` |
@@ -56,6 +56,10 @@ Hinweise zur Nutzung:
   zum Neuladen im Speicher. Höchstens 50 Einträge.
 - **Open-Meteo** liefert `weathercode` nach WMO-Schlüssel; die deutschen Bezeichnungen und
   die Icon-Auswahl liegen in `app/OsmLinkForm.tsx` bzw. `app/WeatherIcon.tsx`.
+  Die Vorhersage braucht `timezone=auto`, sonst schneidet Open-Meteo die Tage nach UTC. Die
+  Tage kommen als `2026-10-23` und werden als Ortsdatum gelesen, nicht per `new Date("…")`
+  (das wäre Mitternacht UTC und westlich von Greenwich der Vortag). Der erste Tag ist heute und
+  wird ausgelassen, weil das aktuelle Wetter schon darüber steht.
 - **Transitous** wird in zwei Schritten abgefragt, weil `reverse-geocode` nur Orte und POIs
   kennt und an vielen Stellen gar keine Haltestelle zurückgibt. Die Bounding-Box wächst bei
   Bedarf von 1 km über 5 km auf 20 km, damit auch ländliche Gegenden abgedeckt sind.
