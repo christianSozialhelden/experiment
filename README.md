@@ -9,7 +9,8 @@ Export auf GitHub Pages und hat deshalb keine serverseitigen Routen.
 
 | Dienst | Zweck | Aufruf |
 | --- | --- | --- |
-| [OpenStreetMap](https://www.openstreetmap.org) | Karte und Link zum Standort | Kacheln von `tile.openstreetmap.org/{z}/{x}/{y}.png` in [Leaflet](https://leafletjs.com), plus `?mlat=…&mlon=…` als Weblink |
+| [OpenFreeMap](https://openfreemap.org) | Karte (Vektorkacheln aus OSM-Daten) | Stil `GET tiles.openfreemap.org/styles/liberty` (Kacheln, Schriften und Symbole lädt MapLibre danach selbst von `tiles.openfreemap.org`), gezeichnet mit [MapLibre GL](https://maplibre.org) als Ebene in [Leaflet](https://leafletjs.com) |
+| [OpenStreetMap](https://www.openstreetmap.org) | Ersatzkarte ohne WebGL und Link zum Standort | Kacheln von `tile.openstreetmap.org/{z}/{x}/{y}.png` in Leaflet, plus `?mlat=…&mlon=…` als Weblink |
 | [Wikipedia](https://de.wikipedia.org) (MediaWiki API) | Vorschläge in der Ortssuche beim Tippen | `GET de.wikipedia.org/w/api.php?action=query&generator=prefixsearch&gpssearch=…&gpslimit=20&prop=coordinates\|description&redirects=1` |
 | [Nominatim](https://nominatim.org) | Ortssuche nach Name oder Adresse beim Absenden | `GET nominatim.openstreetmap.org/search?q=…&format=jsonv2&limit=8&accept-language=de` |
 | [Open-Meteo](https://open-meteo.com) | Aktuelles Wetter | `GET api.open-meteo.com/v1/forecast?latitude=…&longitude=…&current_weather=true` |
@@ -28,7 +29,15 @@ Hinweise zur Nutzung:
   Nadel im eingebetteten `export/embed.html` nicht verschieben lässt. Nadel ziehen oder in die
   Karte klicken setzt die Koordinaten (auf fünf Nachkommastellen, etwa 1 m). Leaflet wird erst
   im Browser per `import()` geladen, weil es beim Import auf `window` zugreift. Das Nadel-Icon
-  ist ein eigenes SVG, weil der Bundler Leaflets Standard-PNGs nicht findet. Die
+  ist ein eigenes SVG, weil der Bundler Leaflets Standard-PNGs nicht findet. Die Grundkarte
+  kommt als Vektorkarte von OpenFreeMap (über `@maplibre/maplibre-gl-leaflet`): Schrift und
+  Linien werden in Display-Auflösung gezeichnet statt als 256-px-Kachel hochskaliert. Die
+  dunkle Variante berechnet `app/darkMapStyle.ts` aus dem hellen Stil (Helligkeit umgedreht,
+  Farbton bleibt), weil OpenFreeMaps eigener `dark`-Stil fast nur grau ist; sie wechselt live
+  mit dem Theme. Ohne
+  WebGL 2 fällt die Karte auf die OSM-Rasterkacheln zurück, im Dark Mode per CSS-Filter
+  invertiert. Leaflet läuft mit `L_DISABLE_3D`, damit die Nadel am Pixelraster einrastet und
+  nicht verschwimmt. Die
   [Tile-Nutzungsrichtlinie](https://operations.osmfoundation.org/policies/tiles/) verlangt
   die sichtbare Namensnennung unten rechts; sie muss bleiben.
 - **Ortssuche** (`app/PlaceSearch.tsx`) schlägt ab drei Zeichen Orte aus der
